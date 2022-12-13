@@ -1,16 +1,39 @@
-目前仅包含了针对windows的攻击
- 
-第一列：技术名
-第二列：dsl查询语句
-第三列：caldera里完整的攻击指令（直接复制过来）
-第四列：备注
-     0：没看懂攻击指令
-     1：攻击指令要求靶机安装特定软件或脚本
-     2：已验证
-     2(4)：直接执行收不到命令行日志，通过“cmd /c”或“powershell.exe”封装执行才能看到命令行语句
-     3：待验证（已验证完成，无该项）
-     4：命令行无法被记录
-     5：若将命令分步执行则难以检测
+# Prerequisite
+**1.** [ELK](https://www.elastic.co/what-is/elk-stack): data engine
 
-"initial access"两个能力均是利用文件钓鱼实现，难以通过命令行检测，故暂未记录
-"multiple"文件为同属多个战术的技术的集合
+**2.** [Python](https://www.python.org/downloads/): drive ELK to execute all detection rules
+<br>
+
+# Usage
+**1.** Import the local logs to the ELK (In my case, they are already collected within ELK) 
+
+**2.** Change the `main.py` template we provide according to your actual needs (mainly focus on the variable "index")
+
+**3.** Execute the `main.py` and start matching!
+<br>
+
+# Description
+**1.** Open any one of the `.csv` file in `Elastic_dsl`, you will see 4 columns:
+ - *Column 1: Technique name*
+ - *Column 2: DSL query statement*
+ - *Column 3: Attack instructions*
+ - *Column 4: Remarks: (Now most of them are 2 or 2(4), don't worry)*
+   - *0: Do not understand the attack command*
+   - *1: The attack command requires the target to install specific software or scripts*
+   - *2: Verified*
+   - *2 (4): The commandline cannot be recorded by direct execution but can only be seen by encapsulating the instruction with `cmd /c "..."` or `powershell. exe "..."`*
+   - *3: To be verified*
+   - *4: Commandline cannot be recorded*
+   - *5: It is difficult to detect if the command is executed step by step*
+
+**2.** The attacks for "initial access" we aquire at present are mainly implemented by phishing, which are rarely executed through the commandline, so they are not recorded yet
+
+**3.** `multiple.csv` are a collection of techniques belonging to multiple tactics
+<br>
+
+# Future Work (defects)
+**1.** Now we only include attacks against Windows systems
+
+**2.** Now we have not developed the capability to cope with the obfuscation
+
+**3.** Now we mainly focus on the "CommandLine" field of Sysmon logs, and actually there are more fields that could be used to assist detection
