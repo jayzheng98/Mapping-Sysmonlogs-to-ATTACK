@@ -14,7 +14,7 @@
 
 # Description
 **1.** Open any one of the `.csv` file in `Elastic_dsl`, you will see 4 columns:
- - *Column 1: Technique name*
+ - *Column 1: Technique id*
  - *Column 2: DSL query statement*
  - *Column 3: Attack instructions*
  - *Column 4: Remarks: (Now most of them are 2 or 2(4), don't worry)*
