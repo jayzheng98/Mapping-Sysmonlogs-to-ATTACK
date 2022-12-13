@@ -21,7 +21,7 @@
    - *0: Do not understand the attack command*
    - *1: The attack command requires the target to install specific software or scripts*
    - *2: Verified*
-   - *2 (4): The commandline cannot be recorded by direct execution but can only be seen by encapsulating the instruction with `cmd /c "..."` or `powershell. exe "..."`*
+   - *2 (4): The commandline cannot be recorded by direct execution but can be seen by encapsulating the instruction with `cmd /c "..."` or `powershell. exe "..."`*
    - *3: To be verified*
    - *4: Commandline cannot be recorded*
    - *5: It is difficult to detect if the command is executed step by step*
