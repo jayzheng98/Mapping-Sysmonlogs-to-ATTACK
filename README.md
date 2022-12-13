@@ -1,7 +1,7 @@
 # Prerequisite
-**1.** [ELK](https://www.elastic.co/what-is/elk-stack): data engine
-
-**2.** [Python](https://www.python.org/downloads/): drive ELK to execute all detection rules
+ [ELK](https://www.elastic.co/what-is/elk-stack): data engine<br>
+ 
+ [Python3](https://www.python.org/downloads/): drive ELK to execute all detection rules
 <br>
 
 # Usage
