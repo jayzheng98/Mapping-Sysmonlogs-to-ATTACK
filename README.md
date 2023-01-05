@@ -7,7 +7,7 @@
 # Usage
 **1.** Import the local logs to the ELK (In my case, they are already collected within ELK) 
 
-**2.** Change the `main.py` template we provide according to your actual needs (mainly focus on the variable "index")
+**2.** Change the `main.py` template we provide according to your actual needs (I've uploaded the "test_in_my_case.py" for reference as well)
 
 **3.** Execute the `main.py` and start matching!
 <br>
