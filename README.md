@@ -1,4 +1,6 @@
 # Prerequisite
+ [Sysmon](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon): advanced system monitor and syslog generator 
+
  [ELK](https://www.elastic.co/what-is/elk-stack): data engine<br>
  
  [Python3](https://www.python.org/downloads/): drive ELK to execute all detection rules
