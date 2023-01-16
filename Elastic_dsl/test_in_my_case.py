@@ -3,14 +3,14 @@ from elasticsearch import Elasticsearch
 import json
 import re
 from pandas import DataFrame
+import datetime
 
 # The specific index name in ELK. You can use wildcard "*" here as well
-index1 = 'test-2022.12.15'
+index1 = 'test-2023.01.16'
 
 tactic_list = ['collection.csv', 'command and control.csv', 'credential access.csv', 'defense evasion.csv',
                'discovery.csv', 'execution.csv', 'exfiltration.csv', 'impact.csv',
                'lateral-movement.csv', 'multiple.csv', 'persistence.csv', 'privilege escalation.csv']
-
 
 def es_search(dsl_term, index_term):
     es = Elasticsearch()
@@ -18,7 +18,6 @@ def es_search(dsl_term, index_term):
     log_list = json.dumps(result["hits"]["hits"], indent=2, ensure_ascii=False)
     log_list = json.loads(log_list)  # Change to "list" format
     return log_list
-
 
 # Mapping sysmonlogs to ATT&CK techniques
 def log_labeling():
@@ -38,7 +37,6 @@ def log_labeling():
                         output[log['_id']] = []
                         output[log['_id']].append(each[0])
     return output  # {'_id1' : [technique_id1, technique_id3], '_id2' : [technique_id2],...}
-
 
 # Fetch all logs in a index and export them to a csv file
 def fetch_all(index_term, labelled_logs):
@@ -74,9 +72,14 @@ def fetch_all(index_term, labelled_logs):
             d[name] = []
 
         for count1, res in enumerate(results):
+            # Unify Linux's "EventTime"
+            if res['_source']['Channel'][0] == 'L':
+                a = datetime.datetime.strptime(res['_source']['EventTime'][:18], "%Y-%m-%dT%H:%M:%S")
+                res['_source']['EventTime'] = a
+
             d[headers[0]].append(count1+1)
             try:
-                if (res['_source']['RuleName'] != '-'):
+                if res['_source']['RuleName'] != '-':
                     res['_source']['RiskLevel'] = 1
                     temp = re.findall(r"id=(.+?),", res['_source']['RuleName'], flags=re.IGNORECASE)
                     if temp:
@@ -108,7 +111,6 @@ def fetch_all(index_term, labelled_logs):
         # Output to "syslog.csv"
         output = DataFrame(d, columns=headers)
         output.to_csv(f, header=True, index=False, encoding='utf-8')
-
 
 if __name__ == '__main__':
     labelled_logs = log_labeling()
