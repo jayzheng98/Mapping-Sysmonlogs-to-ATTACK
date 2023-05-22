@@ -15,7 +15,9 @@
 <br>
 
 # Description
-**1.** Open any one of the `.csv` file in `Elastic_dsl`, you will see 4 columns:
+**1.** This rule set conforms to the query statement **DSL** of ELK engine, so we can utilize ELK to drive detections within tremendous data quickly
+
+**2.** Open any one of the `.csv` file in `Elastic_dsl`, you will see 4 columns:
  - *Column 1: Technique id*
  - *Column 2: DSL query statement*
  - *Column 3: Attack instructions*
@@ -28,9 +30,9 @@
    - *4: Commandline cannot be recorded*
    - *5: It is difficult to detect if the command is executed step by step*
 
-**2.** The attacks for "initial access" we aquire at present are mainly implemented by phishing, which are rarely executed through the commandline, so they are not recorded yet
+**3.** The attacks for "initial access" we aquire at present are mainly implemented by phishing, which are rarely executed through the commandline, so they are not recorded yet
 
-**3.** `multiple.csv` are a collection of techniques belonging to multiple tactics
+**4.** `multiple.csv` are a collection of techniques belonging to multiple tactics
 <br>
 
 # Future Work (defects)
