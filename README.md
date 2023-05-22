@@ -15,7 +15,7 @@
 <br>
 
 # Description
-**1.** This rule set conforms to the query statement **DSL** of ELK engine, so we can utilize ELK to drive detections within tremendous data quickly
+**1.** This rule set conforms to the query statement **[DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)** of ELK engine, so we can utilize ELK to drive detections within tremendous data quickly
 
 **2.** Open any one of the `.csv` file in `Elastic_dsl`, you will see 4 columns:
  - *Column 1: Technique id*
